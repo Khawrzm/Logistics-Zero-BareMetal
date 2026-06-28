@@ -22,7 +22,10 @@ enum OpType : uint8_t {
     OP_MUL = 4,
     OP_DIV = 5,
     OP_SUM = 6,
-    OP_AVG = 7
+    OP_AVG = 7,
+    OP_IF = 8,
+    OP_IFS = 9,
+    OP_LOOKUP = 10
 };
 
 // Blittable AST node layout
@@ -56,7 +59,7 @@ uint32_t GetCurrentThreadIdHash() {
     return std::hash<std::thread::id>{}(id) & 0xFFFFFFFF;
 }
 
-// Forward declaration of AST evaluator
+// Forward declarations
 bool EvaluateAST(
     int cell_idx,
     std::span<Cell> cells,
@@ -64,14 +67,18 @@ bool EvaluateAST(
     uint32_t thread_hash
 );
 
-// Evaluates an individual AST node for a cell
-double EvaluateNode(
-    const ExpressionNode& node,
+double EvaluateNode_Internal(
+    int node_idx,
     std::span<Cell> cells,
     std::span<const ExpressionNode> expr_nodes,
     uint32_t thread_hash,
     bool& success
 ) {
+    if (node_idx < 0 || node_idx >= static_cast<int>(expr_nodes.size())) {
+        success = false;
+        return 0.0;
+    }
+    const ExpressionNode& node = expr_nodes[node_idx];
     switch (node.type) {
         case OP_CONST:
             return node.const_value;
@@ -85,6 +92,27 @@ double EvaluateNode(
             }
             success = false;
             return 0.0;
+
+        case OP_ADD: {
+            double left = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            double right = EvaluateNode_Internal(node_idx + node.range_end_idx, cells, expr_nodes, thread_hash, success);
+            return left + right;
+        }
+        case OP_SUB: {
+            double left = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            double right = EvaluateNode_Internal(node_idx + node.range_end_idx, cells, expr_nodes, thread_hash, success);
+            return left - right;
+        }
+        case OP_MUL: {
+            double left = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            double right = EvaluateNode_Internal(node_idx + node.range_end_idx, cells, expr_nodes, thread_hash, success);
+            return left * right;
+        }
+        case OP_DIV: {
+            double left = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            double right = EvaluateNode_Internal(node_idx + node.range_end_idx, cells, expr_nodes, thread_hash, success);
+            return (right != 0.0) ? (left / right) : 0.0;
+        }
             
         case OP_SUM: {
             double sum = 0.0;
@@ -112,6 +140,53 @@ double EvaluateNode(
                 }
             }
             return (count > 0) ? (sum / count) : 0.0;
+        }
+
+        case OP_IF: {
+            double cond = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            if (cond != 0.0) {
+                return EvaluateNode_Internal(node_idx + node.range_end_idx, cells, expr_nodes, thread_hash, success);
+            } else {
+                return EvaluateNode_Internal(node_idx + node.cell_ref_idx, cells, expr_nodes, thread_hash, success);
+            }
+        }
+
+        case OP_IFS: {
+            int pairs_count = node.cell_ref_idx; 
+            for (int i = 0; i < pairs_count; ++i) {
+                int cond_offset = 1 + 2 * i;
+                int val_offset = 2 + 2 * i;
+                double cond = EvaluateNode_Internal(node_idx + cond_offset, cells, expr_nodes, thread_hash, success);
+                if (cond != 0.0) {
+                    return EvaluateNode_Internal(node_idx + val_offset, cells, expr_nodes, thread_hash, success);
+                }
+            }
+            return 0.0;
+        }
+
+        case OP_LOOKUP: {
+            double search_key = EvaluateNode_Internal(node_idx + node.range_start_idx, cells, expr_nodes, thread_hash, success);
+            int lookup_start_cell = node.range_end_idx;
+            int result_start_cell = node.cell_ref_idx;
+            
+            for (int i = 0; i < 10; ++i) {
+                int search_cell_idx = lookup_start_cell + i;
+                if (search_cell_idx >= 0 && search_cell_idx < static_cast<int>(cells.size())) {
+                    if (!EvaluateAST(search_cell_idx, cells, expr_nodes, thread_hash)) {
+                        success = false;
+                    }
+                    if (cells[search_cell_idx].value == search_key) {
+                        int res_cell_idx = result_start_cell + i;
+                        if (res_cell_idx >= 0 && res_cell_idx < static_cast<int>(cells.size())) {
+                            if (!EvaluateAST(res_cell_idx, cells, expr_nodes, thread_hash)) {
+                                success = false;
+                            }
+                            return cells[res_cell_idx].value;
+                        }
+                    }
+                }
+            }
+            return 0.0;
         }
         
         default:
@@ -144,25 +219,22 @@ bool EvaluateAST(
 
         if (state == STATE_COMPUTING) {
             if (owner == thread_hash) {
-                // Cycle detected in current thread's dependency path
                 uint64_t cycle_desired = (static_cast<uint64_t>(thread_hash) << 32) | STATE_CYCLE;
                 state_ref.compare_exchange_strong(current, cycle_desired);
                 return false;
             }
 
-            // Speculative Reevaluation using Thread ID as a Tie-Breaker (CAS)
+            // Speculative Reevaluation tie-breaker
             if (thread_hash > owner) {
-                // Speculative takeover: Attempt to preempt evaluation of the lower priority thread
                 uint64_t takeover_desired = (static_cast<uint64_t>(thread_hash) << 32) | STATE_COMPUTING;
                 if (state_ref.compare_exchange_strong(current, takeover_desired)) {
-                    // Preemption successful, fall through to compute
+                    // preemption success
                 } else {
-                    continue; // State changed during CAS, loop again
+                    continue;
                 }
             } else {
-                // Lower priority: yield and allow higher-priority thread to complete
                 std::this_thread::yield();
-                return true; // Return true speculatively to avoid deadlocking
+                return true; 
             }
         }
 
@@ -175,33 +247,13 @@ bool EvaluateAST(
         }
     }
 
-    // Process evaluation of AST expression nodes using std::span
-    std::span<const ExpressionNode> cell_nodes = expr_nodes.subspan(cell.expr_start, cell.expr_count);
-    
     bool success = true;
     double result = 0.0;
 
-    if (cell_nodes.empty()) {
-        result = cell.value; // Raw constant cell value
+    if (cell.expr_count <= 0) {
+        result = cell.value;
     } else {
-        // Evaluate the root operations (simple binary AST evaluator)
-        const ExpressionNode& root = cell_nodes[0];
-        
-        if (root.type == OP_ADD || root.type == OP_SUB || root.type == OP_MUL || root.type == OP_DIV) {
-            if (cell_nodes.size() >= 3) {
-                double left = EvaluateNode(cell_nodes[1], cells, expr_nodes, thread_hash, success);
-                double right = EvaluateNode(cell_nodes[2], cells, expr_nodes, thread_hash, success);
-                
-                if (root.type == OP_ADD) result = left + right;
-                else if (root.type == OP_SUB) result = left - right;
-                else if (root.type == OP_MUL) result = left * right;
-                else if (root.type == OP_DIV) result = (right != 0.0) ? (left / right) : 0.0;
-            } else {
-                success = false;
-            }
-        } else {
-            result = EvaluateNode(root, cells, expr_nodes, thread_hash, success);
-        }
+        result = EvaluateNode_Internal(cell.expr_start, cells, expr_nodes, thread_hash, success);
     }
 
     if (success) {
@@ -224,7 +276,6 @@ extern "C" {
         int expr_nodes_count,
         int thread_count
     ) {
-        // Zero-copy wrapping using std::span
         std::span<Cell> cells(cells_ptr, cells_count);
         std::span<const ExpressionNode> expr_nodes(expr_nodes_ptr, expr_nodes_count);
 

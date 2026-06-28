@@ -39,8 +39,6 @@ namespace LogisticsZero {
     }
 
     public static partial class EngineInterop {
-        // [LibraryImport] enables zero-marshalling native boundary crossing
-        // generating C# P/Invoke code at compile time.
         [LibraryImport("sovereign_engine", EntryPoint = "RecalculateEngine")]
         public static partial void Recalculate(
             [In, Out] Cell[] cells,

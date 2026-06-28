@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistics-Zero UniverJS Executive Dashboard</title>
+    <title>Logistics-Zero UniverJS Executive Dashboard (Zenith Edition)</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-find-replace@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/docs-ui@0.2.0/lib/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/index.css">
 
     <style>
         :root {
@@ -83,6 +83,7 @@
 
         .status-indicators {
             display: flex;
+            align-items: center;
             gap: 16px;
             font-size: 12px;
             font-family: 'JetBrains Mono', monospace;
@@ -125,6 +126,11 @@
             gap: 20px;
             overflow-y: auto;
             z-index: 10;
+        }
+
+        body[dir="rtl"] .sidebar {
+            border-right: none;
+            border-left: 1px solid var(--border-color);
         }
 
         .sidebar-section {
@@ -181,6 +187,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
         }
 
         .btn:hover {
@@ -235,20 +242,77 @@
             color: var(--text-muted);
             z-index: 10;
         }
+
+        /* Switch toggles styling */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #3e4049;
+            transition: .3s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
 
     <!-- Header -->
-    <header>
+    <header id="header-container">
         <div class="logo-section">
-            <span class="seal-badge">Official KSAU-HS Portal</span>
-            <span class="title">Logistics-Zero Sovereign Executive Dashboard</span>
+            <span class="seal-badge" id="badge-text">Official KSAU-HS Portal</span>
+            <span class="title" id="title-text">Logistics-Zero Sovereign Executive Dashboard</span>
         </div>
         <div class="status-indicators">
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="toggleLanguage()" id="lang-btn">عربي</button>
             <div class="indicator">
                 <div class="dot"></div>
-                <span>OLAP: Online</span>
+                <span id="olap-indicator">OLAP: Online</span>
             </div>
             <div class="indicator">
                 <span id="evaluation-latency" style="color: var(--accent-color)">Puncalc: 0.00ms</span>
@@ -261,19 +325,30 @@
         <!-- Sidebar Controls -->
         <div class="sidebar">
             <div class="sidebar-section">
-                <div class="sidebar-title">Clinical Operations</div>
-                <button class="btn btn-primary" onclick="triggerNativeRecalculate()">
+                <div class="sidebar-title" id="ops-title">Clinical Operations</div>
+                <button class="btn btn-primary" onclick="triggerNativeRecalculate()" id="btn-recalc">
                     <span>Run Puncalc Engine</span>
                 </button>
-                <button class="btn" onclick="directPrintGiai()">
+                <button class="btn" onclick="directPrintGiai()" id="btn-print">
                     <span>Print GIAI Asset Tag</span>
                 </button>
             </div>
 
             <div class="sidebar-section">
-                <div class="sidebar-title">DuckDB Columnar Aggregations</div>
+                <div class="sidebar-title" id="batch-title">Batch Rendering Mode</div>
+                <div class="toggle-container">
+                    <span id="batch-label" style="font-size: 12px;">Suppress UI Updates</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="batch-toggle" onchange="toggleBatchMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title" id="olap-title">DuckDB Columnar Aggregations</div>
                 <div class="control-group">
-                    <label for="dept-dropdown">Select Department</label>
+                    <label for="dept-dropdown" id="dept-label">Select Department</label>
                     <select id="dept-dropdown" onchange="runDuckDbOlap()">
                         <option value="Cardiology">Cardiology</option>
                         <option value="Neurology">Neurology</option>
@@ -282,7 +357,7 @@
                         <option value="Pediatrics">Pediatrics</option>
                     </select>
                 </div>
-                <button class="btn" onclick="runDuckDbOlap()">
+                <button class="btn" onclick="runDuckDbOlap()" id="btn-olap">
                     <span>Run OLAP Pivot Query</span>
                 </button>
                 
@@ -294,9 +369,18 @@
             </div>
 
             <div class="sidebar-section">
-                <div class="sidebar-title">GIAI Validator</div>
+                <div class="sidebar-title" id="export-title">Local Export & Storage</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn" onclick="exportData('json')">JSON</button>
+                    <button class="btn" onclick="exportData('csv')">CSV</button>
+                </div>
+                <div style="font-size: 10px; color: var(--text-muted); text-align: center;" id="autosave-status">Auto-save: Active</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title" id="giai-title">GIAI Validator</div>
                 <div class="control-group">
-                    <label for="barcode-val">Barcode Value</label>
+                    <label for="barcode-val" id="barcode-label">Barcode Value</label>
                     <input type="text" id="barcode-val" value="(8004)120239401" oninput="runValidateGiai()" />
                 </div>
                 <div id="giai-validation-status" style="font-size: 12px; font-weight: 600; color: var(--accent-color);">
@@ -313,8 +397,8 @@
 
     <!-- Footer -->
     <footer>
-        <div>Sovereign clinical mode | Air-Gapped / Zero-Telemetry</div>
-        <div>100,000+ Row Canvas2D Grid</div>
+        <div id="footer-left">Sovereign clinical mode | Air-Gapped / Zero-Telemetry</div>
+        <div id="footer-right">100,000+ Row Canvas2D Grid</div>
     </footer>
 
     <!-- UniverJS Scripts -->
@@ -323,13 +407,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-render@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs-ui@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-find-replace@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/umd/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/umd/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/umd/index.js"></script>
 
     <script>
         // Check if hosted within C# WebView2, setup bridge fallback mock
@@ -339,15 +424,23 @@
                 bridge = window.chrome.webview.hostObjects.bridge;
             }
         } catch (e) {
-            console.warn("WebView2 Host Object Bridge not available. Emulating in sandbox.", e);
+            console.warn("WebView2 Host Object Bridge not available.", e);
         }
 
-        // 1. Initialize UniverJS core and sheet engines
+        // Configure default theme and override colors to match KSAU-HS Green branding
+        const defaultTheme = UniverDesign.themes.dark;
+        defaultTheme.green500 = '#0DA471';
+        defaultTheme.primaryColor = '#0DA471';
+        defaultTheme.bgNormalColor = '#1B1C1F';
+        defaultTheme.bgBodyColor = '#1B1C1F';
+
+        // 1. Initialize UniverJS core engine with dark mode settings
         const univer = new UniverCore.Univer({
-            theme: UniverDesign.themes.dark,
+            theme: defaultTheme,
+            darkMode: true
         });
 
-        // Register plugins matching clinical requirements
+        // Register the full ecosystem of Univer plugins
         univer.registerPlugin(UniverRender.UniverRenderEnginePlugin);
         univer.registerPlugin(UniverUI.UniverUIPlugin, {
             container: 'univer-container',
@@ -355,13 +448,41 @@
             footer: false,
             sidebar: false,
         });
+        univer.registerPlugin(UniverDocs.UniverDocsPlugin);
+        univer.registerPlugin(UniverDocsUI.UniverDocsUIPlugin);
         univer.registerPlugin(UniverSheets.UniverSheetsPlugin);
         univer.registerPlugin(UniverSheetsUI.UniverSheetsUIPlugin);
         univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
         univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
+        univer.registerPlugin(UniverSheetsFindReplace.UniverSheetsFindReplacePlugin);
         univer.registerPlugin(UniverSheetsConditionalFormatting.UniverSheetsConditionalFormattingPlugin);
-        univer.registerPlugin(UniverSheetsDataValidation.UniverSheetsDataValidationPlugin);
-        univer.registerPlugin(UniverSheetsFilter.UniverSheetsFilterPlugin);
+
+        // Load cached spreadsheet data from localStorage if exists
+        let loadedCellData = null;
+        try {
+            const cached = localStorage.getItem('logistics_zero_ast');
+            if (cached) {
+                loadedCellData = JSON.parse(cached);
+            }
+        } catch (err) {
+            console.warn("Failed to load cached sheet AST", err);
+        }
+
+        const defaultCellData = {
+            '0': {
+                '0': { v: 'A1: Raw Cost Values' },
+                '1': { v: 'B1: Formula SUM' },
+                '2': { v: 'C1: Nested IF Smells' }
+            },
+            '1': {
+                '0': { v: 120 },
+                '1': { v: '=SUM(A2:A5)' },
+                '2': { v: '=IFS(A2>10, 100, A2>5, 50, true, 0)' }
+            },
+            '2': { '0': { v: 250 } },
+            '3': { '0': { v: 340 } },
+            '4': { '0': { v: 480 } }
+        };
 
         // Create workbook instance
         const workbook = univer.createUniverSheet({
@@ -374,26 +495,149 @@
                     name: 'KSAU-HS Financial Assets',
                     rowCount: 100000,
                     columnCount: 26,
-                    cellData: {
-                        '0': {
-                            '0': { v: 'A1: Raw Cost Values' },
-                            '1': { v: 'B1: Formula SUM' },
-                            '2': { v: 'C1: Nested IF Smells' }
-                        },
-                        '1': {
-                            '0': { v: 120 },
-                            '1': { v: '=SUM(A2:A5)' },
-                            '2': { v: '=IF(A2>10, 100, IF(A2>5, 50, 0))' }
-                        },
-                        '2': { '0': { v: 250 } },
-                        '3': { '0': { v: 340 } },
-                        '4': { '0': { v: 480 } }
-                    }
+                    cellData: loadedCellData || defaultCellData
                 }
             }
         });
 
-        // 2. Clinical bridge execution methods
+        // 2. Bilingual RTL/LTR switching system
+        let isArabic = false;
+        const translations = {
+            en: {
+                badge: "Official KSAU-HS Portal",
+                title: "Logistics-Zero Sovereign Executive Dashboard",
+                ops: "Clinical Operations",
+                recalc: "Run Puncalc Engine",
+                print: "Print GIAI Asset Tag",
+                batchTitle: "Batch Rendering Mode",
+                batchLabel: "Suppress UI Updates",
+                olapTitle: "DuckDB Columnar Aggregations",
+                deptLabel: "Select Department",
+                olapBtn: "Run OLAP Pivot Query",
+                exportTitle: "Local Export & Storage",
+                giaiTitle: "GIAI Validator",
+                barcodeLabel: "Barcode Value",
+                footerLeft: "Sovereign clinical mode | Air-Gapped / Zero-Telemetry",
+                footerRight: "100,000+ Row Canvas2D Grid",
+                langBtn: "عربي"
+            },
+            ar: {
+                badge: "بوابة جامعة الملك سعود للعلوم الصحية الرسمية",
+                title: "لوحة التحكم التنفيذية المستقلة لـ Logistics-Zero",
+                ops: "العمليات السريرية",
+                recalc: "تشغيل محرك الحساب Puncalc",
+                print: "طباعة ملصق أصول GIAI",
+                batchTitle: "وضع المعالجة الدفعية للواجهة",
+                batchLabel: "تعطيل تحديثات الواجهة",
+                olapTitle: "تجميع البيانات عبر DuckDB",
+                deptLabel: "اختر القسم الطبي",
+                olapBtn: "تشغيل استعلام OLAP",
+                exportTitle: "التصدير والتخزين المحلي",
+                giaiTitle: "التحقق من كود GIAI",
+                barcodeLabel: "قيمة الباركود",
+                footerLeft: "الوضع السريري السيادي | معزول بالكامل / بدون تتبع",
+                footerRight: "شبكة رسومية Canvas2D بأكثر من 100,000 صف",
+                langBtn: "English"
+            }
+        };
+
+        function toggleLanguage() {
+            isArabic = !isArabic;
+            const lang = isArabic ? 'ar' : 'en';
+            document.body.dir = isArabic ? 'rtl' : 'ltr';
+            
+            document.getElementById('badge-text').textContent = translations[lang].badge;
+            document.getElementById('title-text').textContent = translations[lang].title;
+            document.getElementById('ops-title').textContent = translations[lang].ops;
+            document.getElementById('btn-recalc').querySelector('span').textContent = translations[lang].recalc;
+            document.getElementById('btn-print').querySelector('span').textContent = translations[lang].print;
+            document.getElementById('batch-title').textContent = translations[lang].batchTitle;
+            document.getElementById('batch-label').textContent = translations[lang].batchLabel;
+            document.getElementById('olap-title').textContent = translations[lang].olapTitle;
+            document.getElementById('dept-label').textContent = translations[lang].deptLabel;
+            document.getElementById('btn-olap').querySelector('span').textContent = translations[lang].olapBtn;
+            document.getElementById('export-title').textContent = translations[lang].exportTitle;
+            document.getElementById('giai-title').textContent = translations[lang].giaiTitle;
+            document.getElementById('barcode-label').textContent = translations[lang].barcodeLabel;
+            document.getElementById('footer-left').textContent = translations[lang].footerLeft;
+            document.getElementById('footer-right').textContent = translations[lang].footerRight;
+            document.getElementById('lang-btn').textContent = translations[lang].langBtn;
+        }
+
+        // 3. Batch paste & render suspension mode toggle
+        let isBatchModeActive = false;
+        function toggleBatchMode() {
+            isBatchModeActive = document.getElementById('batch-toggle').checked;
+            const container = document.getElementById('univer-container');
+            if (isBatchModeActive) {
+                // Freezes the Univer rendering interface
+                container.style.pointerEvents = 'none';
+                container.style.opacity = '0.5';
+                console.log("Batch Mode Activated. UI reconciliation suspended.");
+            } else {
+                container.style.pointerEvents = 'auto';
+                container.style.opacity = '1';
+                console.log("Batch Mode Deactivated. UI refreshed.");
+            }
+        }
+
+        // 4. Air-Gapped Auto-save & Local Export (Zero-Telemetry)
+        setInterval(() => {
+            try {
+                const snapshot = workbook.save();
+                if (snapshot && snapshot.sheets && snapshot.sheets.sheet1 && snapshot.sheets.sheet1.cellData) {
+                    localStorage.setItem('logistics_zero_ast', JSON.stringify(snapshot.sheets.sheet1.cellData));
+                    document.getElementById('autosave-status').textContent = `Auto-save: Saved (${new Date().toLocaleTimeString()})`;
+                }
+            } catch (err) {
+                console.warn("Auto-save failed", err);
+            }
+        }, 30000);
+
+        function exportData(format) {
+            try {
+                const snapshot = workbook.save();
+                const cellData = (snapshot && snapshot.sheets && snapshot.sheets.sheet1) ? snapshot.sheets.sheet1.cellData : defaultCellData;
+                
+                let content = "";
+                let mime = "";
+                let extension = "";
+
+                if (format === 'json') {
+                    content = JSON.stringify(cellData, null, 4);
+                    mime = "application/json";
+                    extension = "json";
+                } else if (format === 'csv') {
+                    // Extract basic row/col matrix
+                    let csvRows = [];
+                    for (let r = 0; r < 20; r++) {
+                        let row = [];
+                        for (let c = 0; c < 10; c++) {
+                            const val = (cellData[r] && cellData[r][c]) ? cellData[r][c].v : "";
+                            row.push(`"${String(val).replace(/"/g, '""')}"`);
+                        }
+                        csvRows.push(row.join(","));
+                    }
+                    content = csvRows.join("\n");
+                    mime = "text/csv";
+                    extension = "csv";
+                }
+
+                const blob = new Blob([content], { type: mime });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `logistics_zero_export_${Date.now()}.${extension}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert(`Export failed: ${err.message}`);
+            }
+        }
+
+        // 5. Clinical bridge execution methods
         async function runDuckDbOlap() {
             const dept = document.getElementById('dept-dropdown').value;
             const output = document.getElementById('olap-output');
