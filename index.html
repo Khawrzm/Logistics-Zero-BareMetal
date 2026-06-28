@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics-Zero BareMetal • Zenith Edition | KHAWRIZM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            --bg: #131417;
+            --panel: #1b1c1f;
+            --border: #2e3037;
+            --text: #e3e4e6;
+            --muted: #8a8d98;
+            --accent: #0DA471;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .mono {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        .section-header {
+            font-size: 0.95rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            color: #0DA471;
+            text-transform: uppercase;
+        }
+
+        .sovereign-card {
+            background: #1b1c1f;
+            border: 1px solid #2e3037;
+            transition: all 0.2s cubic-bezier(0.23, 1.0, 0.32, 1);
+        }
+        
+        .sovereign-card:hover {
+            border-color: #0DA471;
+            transform: translateY(-2px);
+        }
+
+        .code-block {
+            background: #0f1012;
+            border: 1px solid #2e3037;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .god-mode {
+            background: linear-gradient(90deg, #0DA471, #0a7a55);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .nav-link {
+            transition: color 0.1s ease;
+        }
+        .nav-link:hover {
+            color: #0DA471;
+        }
+
+        .status-pill {
+            background: #1b1c1f;
+            border: 1px solid #2e3037;
+            font-size: 0.7rem;
+            padding: 1px 9px;
+            border-radius: 9999px;
+        }
+
+        .changelog-item {
+            position: relative;
+            padding-left: 1.35rem;
+        }
+        .changelog-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.45rem;
+            width: 6px;
+            height: 6px;
+            background: #0DA471;
+            border-radius: 50%;
+        }
+
+        .version-row {
+            transition: background-color 0.1s ease;
+        }
+        .version-row:hover {
+            background-color: #1b1c1f;
+        }
+    </style>
+</head>
+<body class="bg-[#131417] text-[#e3e4e6] antialiased">
+    <!-- NAV -->
+    <nav class="border-b border-[#2e3037] bg-[#131417]/95 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-x-3">
+                    <div class="flex items-center gap-x-2.5">
+                        <div class="w-9 h-9 rounded-2xl bg-[#0DA471] flex items-center justify-center shadow-inner">
+                            <i class="fa-solid fa-boxes text-[#131417] text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold tracking-[-1.5px] text-[27px] leading-none">LOGISTICS-ZERO</div>
+                            <div class="text-[9px] text-[#8a8d98] tracking-[2.5px] -mt-0.5 font-medium">BAREMETAL • ZENITH</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-x-7 text-sm font-medium">
+                    <a href="#architecture" class="nav-link">Architecture</a>
+                    <a href="#principles" class="nav-link">Principles</a>
+                    <a href="#changelog" class="nav-link">Changelog</a>
+                    <a href="#build" class="nav-link">Build</a>
+                    
+                    <div class="h-5 w-px bg-[#2e3037]"></div>
+                    
+                    <a href="./univer_executive.html" 
+                       target="_blank"
+                       class="flex items-center gap-x-2 px-5 h-10 rounded-2xl border border-[#0DA471] text-[#0DA471] hover:bg-[#0DA471] hover:text-[#131417] transition-all text-sm font-semibold">
+                        <i class="fa-solid fa-external-link-alt"></i>
+                        <span>Launch Dashboard</span>
+                    </a>
+                    
+                    <a href="https://github.com/Khawrzm/Logistics-Zero-BareMetal/releases/tag/v4.0.0-Absolute-Zenith" 
+                       target="_blank"
+                       class="flex items-center gap-x-2 px-6 h-10 rounded-2xl bg-[#0DA471] text-[#131417] font-semibold text-sm hover:bg-[#0a7a55] transition-all">
+                        <i class="fa-solid fa-download mr-1.5"></i>
+                        <span>Download v4.0.0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="max-w-screen-2xl mx-auto px-8 pt-20 pb-16">
+        <div class="max-w-[820px]">
+            <div class="inline-flex items-center gap-x-2 mb-6">
+                <div class="px-4 h-8 rounded-3xl border border-[#2e3037] bg-[#1b1c1f] flex items-center text-sm">
+                    <span class="font-mono text-[#0DA471] font-semibold">v4.0.0</span>
+                    <span class="mx-2 text-[#2e3037]">•</span>
+                    <span class="font-semibold tracking-widest text-[#0DA471]">ABSOLUTE ZENITH</span>
+                </div>
+                <div class="px-3 h-8 rounded-3xl bg-[#1b1c1f] border border-[#2e3037] text-xs flex items-center text-[#8a8d98]">
+                    RELEASED 28 JUNE 2026
+                </div>
+            </div>
+
+            <h1 class="text-[72px] leading-[1.05] font-semibold tracking-[-3.2px] mb-5">
+                Logistics-Zero<br>
+                <span class="god-mode">BareMetal</span>
+            </h1>
+            
+            <p class="max-w-md text-2xl tracking-[-0.3px] text-[#8a8d98] mb-9">
+                The complete air-gapped sovereign engine for clinical asset intelligence and GS1 GIAI tagging at KSAU-HS.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-3">
+                <a href="./univer_executive.html" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-x-3 h-14 px-9 rounded-3xl bg-[#0DA471] text-[#131417] font-semibold text-[15px] hover:bg-[#0a7a55] active:scale-[0.985] transition-all">
+                    <i class="fa-solid fa-play mr-1"></i>
+                    <span>Launch Zenith Dashboard</span>
+                </a>
+                
+                <a href="#changelog" 
+                   class="inline-flex items-center justify-center gap-x-3 h-14 px-8 rounded-3xl border border-[#2e3037] hover:bg-[#1b1c1f] font-medium text-[15px] transition-all">
+                    View Full Changelog
+                </a>
+            </div>
+            
+            <div class="mt-8 flex items-center gap-x-5 text-xs">
+                <div class="flex items-center gap-x-2 text-[#8a8d98]">
+                    <div class="flex -space-x-1">
+                        <div class="w-5 h-5 rounded-full bg-[#0DA471]/10 border border-[#0DA471]/30 flex items-center justify-center"><i class="fa-solid fa-c text-[#0DA471] text-[9px]"></i></div>
+                        <div class="w-5 h-5 rounded-full bg-[#0DA471]/10 border border-[#0DA471]/30 flex items-center justify-center"><i class="fa-solid fa-sharp text-[#0DA471] text-[9px]"></i></div>
+                    </div>
+                    <span>Built in Riyadh for KSAU-HS Intranet</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRUST BAR -->
+    <div class="border-y border-[#2e3037] bg-[#1b1c1f]">
+        <div class="max-w-screen-2xl mx-auto px-8 py-4">
+            <div class="flex flex-wrap items-center justify-center md:justify-between gap-x-8 gap-y-3 text-center text-xs">
+                <div class="flex items-center gap-x-2 text-[#0DA471]">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="font-medium tracking-wider">AIR-GAPPED</span>
+                </div>
+                <div class="flex items-center gap-x-2 text-[#0DA471]">
+                    <i class="fa-solid fa-satellite"></i>
+                    <span class="font-medium tracking-wider">ZERO TELEMETRY</span>
+                </div>
+                <div class="flex items-center gap-x-2 text-[#0DA471]">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span class="font-medium tracking-wider">BARE-METAL PRINTING</span>
+                </div>
+                <div class="flex items-center gap-x-2 text-[#0DA471]">
+                    <i class="fa-solid fa-hospital"></i>
+                    <span class="font-medium tracking-wider">KSAU-HS PRODUCTION</span>
+                </div>
+                <div class="flex items-center gap-x-2 text-[#0DA471]">
+                    <i class="fa-solid fa-globe"></i>
+                    <span class="font-medium tracking-wider">EN / AR BILINGUAL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="max-w-screen-2xl mx-auto px-8 pt-16 pb-10">
+        <div class="max-w-3xl">
+            <div class="uppercase tracking-[2px] text-xs text-[#0DA471] font-semibold mb-3">SOVEREIGN CLINICAL LOGISTICS PLATFORM</div>
+            <h2 class="text-5xl font-semibold tracking-[-1.8px] leading-none mb-6">
+                Purpose-built for institutions that demand zero external dependencies and clinical-grade performance.
+            </h2>
+            <p class="text-[17px] text-[#8a8d98]">
+                Logistics-Zero BareMetal v4.0.0 Absolute Zenith combines a lock-free C++20 recalculation engine, 
+                high-speed DuckDB OLAP, and direct thermal printer control into one air-gapped desktop application 
+                designed specifically for the KSAU-HS clinical environment.
+            </p>
+        </div>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div id="architecture" class="max-w-screen-2xl mx-auto px-8 pb-14">
+        <div class="flex items-end justify-between mb-7">
+            <div>
+                <div class="section-header">Four-Layer Sovereign Architecture</div>
+            </div>
+            <a href="https://github.com/Khawrzm/Logistics-Zero-BareMetal" target="_blank" 
+               class="text-xs flex items-center gap-x-1.5 text-[#0DA471] hover:underline">
+                VIEW FULL SOURCE <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            <!-- C++ Engine -->
+            <div class="sovereign-card rounded-3xl p-7">
+                <div class="flex items-start gap-x-4 mb-5">
+                    <div class="mt-0.5"><i class="fa-solid fa-cogs text-[#0DA471] text-3xl"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-[21px] tracking-[-0.5px] leading-none">C++20 Recalculation Engine</div>
+                        <div class="text-xs text-[#0DA471] font-mono mt-1">sovereign_engine.cpp</div>
+                    </div>
+                </div>
+                <p class="text-sm text-[#8a8d98]">
+                    Zero-copy memory via <span class="font-mono text-[#e3e4e6]">std::span</span>. Lock-free speculative reevaluation using 
+                    <span class="font-mono text-[#e3e4e6]">std::atomic_ref</span> + CAS with thread ID tie-breakers. Bypasses .NET GC entirely.
+                </p>
+            </div>
+
+            <!-- C# Bridge -->
+            <div class="sovereign-card rounded-3xl p-7">
+                <div class="flex items-start gap-x-4 mb-5">
+                    <div class="mt-0.5"><i class="fa-solid fa-link text-[#0DA471] text-3xl"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-[21px] tracking-[-0.5px] leading-none">C# FFI + OLAP Bridge</div>
+                        <div class="text-xs text-[#0DA471] font-mono mt-1">EngineInterop.cs • PivotEngine.cs</div>
+                    </div>
+                </div>
+                <p class="text-sm text-[#8a8d98]">
+                    P/Invoke to native engine. DuckDB.NET delivers O(1) columnar aggregations over local SQLite WAL. 
+                    Designed for 10k+ row clinical asset datasets.
+                </p>
+            </div>
+
+            <!-- Printing -->
+            <div class="sovereign-card rounded-3xl p-7">
+                <div class="flex items-start gap-x-4 mb-5">
+                    <div class="mt-0.5"><i class="fa-solid fa-print text-[#0DA471] text-3xl"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-[21px] tracking-[-0.5px] leading-none">Direct Thermal Printing</div>
+                        <div class="text-xs text-[#0DA471] font-mono mt-1">GiaiPrintService.cs</div>
+                    </div>
+                </div>
+                <p class="text-sm text-[#8a8d98]">
+                    Direct <span class="font-mono">System.Drawing.Printing</span> to Zebra ZT411 and compatible devices. 
+                    Bypasses all dialogs for true clinical-speed GS1 GIAI (8004) label output.
+                </p>
+            </div>
+
+            <!-- UI -->
+            <div class="sovereign-card rounded-3xl p-7">
+                <div class="flex items-start gap-x-4 mb-5">
+                    <div class="mt-0.5"><i class="fa-solid fa-desktop text-[#0DA471] text-3xl"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-[21px] tracking-[-0.5px] leading-none">Canvas2D Executive UI</div>
+                        <div class="text-xs text-[#0DA471] font-mono mt-1">univer_executive.html</div>
+                    </div>
+                </div>
+                <p class="text-sm text-[#8a8d98]">
+                    High-performance 100,000+ row grid powered by UniverJS Canvas2D. Real-time OLAP, GIAI validation, 
+                    batch rendering mode, and full bilingual support — all inside WebView2.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOVEREIGN PRINCIPLES -->
+    <div id="principles" class="border-y border-[#2e3037] bg-[#1b1c1f]">
+        <div class="max-w-screen-2xl mx-auto px-8 py-14">
+            <div class="max-w-2xl mb-9">
+                <div class="section-header mb-2">Sovereign by Architecture</div>
+                <p class="text-[#8a8d98]">Every decision eliminates external dependencies and maximizes institutional sovereignty.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-9 text-sm">
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-lock text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">True Air-Gapped Operation</div>
+                        <div class="text-[#8a8d98]">Zero network calls after deployment. No telemetry, no license checks, no cloud components.</div>
+                    </div>
+                </div>
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-microchip text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">Direct Hardware Control</div>
+                        <div class="text-[#8a8d98]">Thermal printers addressed at the lowest Windows level. No spoolers, no intermediate services.</div>
+                    </div>
+                </div>
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-database text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">Local Data Sovereignty</div>
+                        <div class="text-[#8a8d98]">SQLite + DuckDB WAL. All data remains on-premise. Built for PDPL and institutional compliance.</div>
+                    </div>
+                </div>
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-bolt text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">Lock-Free Speculative Engine</div>
+                        <div class="text-[#8a8d98]">C++20 atomics eliminate traditional locks. Cyclic dependencies resolved without deadlocks or mutexes.</div>
+                    </div>
+                </div>
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-globe text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">Bilingual Clinical Interface</div>
+                        <div class="text-[#8a8d98]">Full English + Arabic RTL support with proper cultural formatting for KSA healthcare environments.</div>
+                    </div>
+                </div>
+                <div class="flex gap-x-4">
+                    <i class="fa-solid fa-shield-halved text-[#0DA471] text-xl mt-0.5 w-5"></i>
+                    <div>
+                        <div class="font-semibold mb-1">Minimal Trust Surface</div>
+                        <div class="text-[#8a8d98]">Verifiable from-source build. No third-party runtimes beyond the .NET 8 desktop runtime.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RELEASE NOTES + CHANGELOG HISTORY -->
+    <div id="changelog" class="max-w-screen-2xl mx-auto px-8 py-16 border-b border-[#2e3037]">
+        <!-- Current Release -->
+        <div class="mb-12">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-y-4 mb-8">
+                <div>
+                    <div class="section-header">Latest Release</div>
+                    <h3 class="text-5xl font-semibold tracking-[-1.5px] mt-2">v4.0.0 Absolute Zenith</h3>
+                    <p class="text-[#8a8d98] mt-1">June 28, 2026 — Zenith Edition</p>
+                </div>
+                <a href="https://github.com/Khawrzm/Logistics-Zero-BareMetal/releases/tag/v4.0.0-Absolute-Zenith" 
+                   target="_blank"
+                   class="inline-flex items-center text-sm font-medium text-[#0DA471] hover:underline">
+                    View on GitHub <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-xs"></i>
+                </a>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-x-8 gap-y-8">
+                <!-- New Features -->
+                <div class="lg:col-span-5 sovereign-card rounded-3xl p-8">
+                    <div class="flex items-center gap-x-3 mb-5">
+                        <i class="fa-solid fa-rocket text-[#0DA471] text-xl"></i>
+                        <span class="font-semibold text-lg tracking-tight">New Features</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-[#e3e4e6]">
+                        <li class="changelog-item">Complete C++20 lock-free speculative recalculation engine with std::atomic_ref</li>
+                        <li class="changelog-item">Direct bare-metal GS1 GIAI 8004 thermal printing service (Zebra ZT411 class)</li>
+                        <li class="changelog-item">Zenith Edition Canvas2D executive dashboard (UniverJS) with 100,000+ row support</li>
+                        <li class="changelog-item">Real-time DuckDB OLAP pivots with department-level aggregations</li>
+                        <li class="changelog-item">Full bilingual English / Arabic RTL clinical interface</li>
+                        <li class="changelog-item">GIAI barcode validator + batch rendering suppression mode</li>
+                    </ul>
+                </div>
+
+                <!-- Engine & Performance -->
+                <div class="lg:col-span-4 sovereign-card rounded-3xl p-8">
+                    <div class="flex items-center gap-x-3 mb-5">
+                        <i class="fa-solid fa-microchip text-[#0DA471] text-xl"></i>
+                        <span class="font-semibold text-lg tracking-tight">Engine &amp; Performance</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-[#e3e4e6]">
+                        <li class="changelog-item">Zero-copy memory access via std::span on C# buffers</li>
+                        <li class="changelog-item">Lock-free speculative reevaluation (CAS + thread ID tiebreakers)</li>
+                        <li class="changelog-item">O(1) DuckDB.NET columnar aggregations over SQLite WAL</li>
+                        <li class="changelog-item">Sub-millisecond Puncalc latency in clinical workloads</li>
+                        <li class="changelog-item">Batch mode for high-volume UI suppression during bulk operations</li>
+                    </ul>
+                </div>
+
+                <!-- Sovereign & Security -->
+                <div class="lg:col-span-3 sovereign-card rounded-3xl p-8">
+                    <div class="flex items-center gap-x-3 mb-5">
+                        <i class="fa-solid fa-shield-halved text-[#0DA471] text-xl"></i>
+                        <span class="font-semibold text-lg tracking-tight">Sovereign &amp; Security</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-[#e3e4e6]">
+                        <li class="changelog-item">True air-gapped operation — zero telemetry by design</li>
+                        <li class="changelog-item">All data remains local (SQLite + DuckDB WAL)</li>
+                        <li class="changelog-item">Direct hardware printing — no Windows spooler or cloud services</li>
+                        <li class="changelog-item">Verifiable from-source build</li>
+                        <li class="changelog-item">PDPL &amp; institutional data residency ready</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version History -->
+        <div>
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div class="section-header">Version History</div>
+                    <p class="text-sm text-[#8a8d98] mt-1">Evolution of the Logistics-Zero BareMetal sovereign stack</p>
+                </div>
+            </div>
+
+            <div class="sovereign-card rounded-3xl overflow-hidden border border-[#2e3037]">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-[#2e3037] bg-[#161719]">
+                            <th class="text-left px-8 py-4 font-semibold text-[#8a8d98]">Version</th>
+                            <th class="text-left px-6 py-4 font-semibold text-[#8a8d98]">Codename</th>
+                            <th class="text-left px-6 py-4 font-semibold text-[#8a8d98]">Key Milestone</th>
+                            <th class="text-right px-8 py-4 font-semibold text-[#8a8d98]">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#2e3037]">
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold text-[#0DA471]">v4.0.0</td>
+                            <td class="px-6 py-5"><span class="font-medium">Absolute Zenith</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">Production release • Zenith Edition dashboard • Full C++20 lock-free engine • Clinical deployment ready</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">28 Jun 2026</td>
+                        </tr>
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold">v4.0.0</td>
+                            <td class="px-6 py-5"><span class="font-medium">God-Mode</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">Major engine rewrite • Lock-free speculative reevaluation • Direct thermal printing service</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">28 Jun 2026</td>
+                        </tr>
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold">v3.5</td>
+                            <td class="px-6 py-5"><span class="font-medium">Canvas Zenith</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">UniverJS Canvas2D integration • 100k+ row grid • Bilingual EN/AR interface • Batch rendering mode</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">Early Jun 2026</td>
+                        </tr>
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold">v3.0</td>
+                            <td class="px-6 py-5"><span class="font-medium">GIAI Direct</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">Direct thermal printing service (GiaiPrintService) • GS1 GIAI 8004 support • Zebra ZT411 integration</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">May 2026</td>
+                        </tr>
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold">v2.0</td>
+                            <td class="px-6 py-5"><span class="font-medium">OLAP Bridge</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">DuckDB.NET integration • High-speed OLAP aggregations • PivotEngine + WAL mode SQLite</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">Apr 2026</td>
+                        </tr>
+                        <tr class="version-row">
+                            <td class="px-8 py-5 font-mono font-semibold">v1.0</td>
+                            <td class="px-6 py-5"><span class="font-medium">Sovereign Core</span></td>
+                            <td class="px-6 py-5 text-[#e3e4e6]">Initial C++20 engine + C# FFI bridge • Zero-copy std::span • Basic clinical asset tracking</td>
+                            <td class="px-8 py-5 text-right text-[#8a8d98] font-mono">Mar 2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 text-xs text-[#8a8d98] px-1">
+                All versions maintain the core sovereign principles: air-gapped operation, zero telemetry, and local-first data handling.
+            </div>
+        </div>
+    </div>
+
+    <!-- EXECUTIVE DASHBOARD PREVIEW -->
+    <div class="bg-[#1b1c1f]">
+        <div class="max-w-screen-2xl mx-auto px-8 py-14">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-y-4 mb-8">
+                <div>
+                    <div class="section-header">Zenith Executive Interface</div>
+                    <div class="text-3xl font-semibold tracking-tight mt-1">Canvas2D • 100k+ Rows • Real-time OLAP</div>
+                </div>
+                <a href="./univer_executive.html" target="_blank"
+                   class="inline-flex items-center text-sm font-medium text-[#0DA471] hover:underline">
+                    Open full dashboard <i class="fa-solid fa-external-link-alt ml-2 text-xs"></i>
+                </a>
+            </div>
+
+            <div class="rounded-3xl border border-[#2e3037] bg-[#131417] p-2">
+                <div class="rounded-2xl bg-[#1b1c1f] px-7 py-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-x-3">
+                            <div class="font-semibold tracking-tight">Logistics-Zero • Zenith Edition</div>
+                            <div class="status-pill text-[#0DA471] flex items-center gap-x-1.5">
+                                <div class="w-1.5 h-1.5 bg-[#0DA471] rounded-full animate-pulse"></div>
+                                <span class="font-mono text-xs">OLAP: LIVE</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-[#8a8d98] font-mono">PUNCALC: 0.00ms • Clinical Mode</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="border border-[#2e3037] rounded-2xl p-4">
+                            <div class="text-xs text-[#8a8d98] mb-2">CLINICAL OPERATIONS</div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center gap-x-2"><i class="fa-solid fa-play text-[#0DA471] w-3"></i> Run Puncalc Engine</div>
+                                <div class="flex items-center gap-x-2"><i class="fa-solid fa-print text-[#0DA471] w-3"></i> Print GIAI Asset Tag</div>
+                                <div class="flex items-center gap-x-2"><i class="fa-solid fa-layer-group text-[#0DA471] w-3"></i> Batch Rendering Mode</div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-[#2e3037] rounded-2xl p-4">
+                            <div class="text-xs text-[#8a8d98] mb-2">DUCKDB OLAP</div>
+                            <div class="space-y-1.5 text-xs">
+                                <div>Department Pivot Query</div>
+                                <div class="text-[#0DA471]">Cardiology • Neurology • Oncology</div>
+                                <div class="text-[10px] text-[#8a8d98]">Cost • Depreciation • Latency metrics</div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-[#2e3037] rounded-2xl p-4">
+                            <div class="text-xs text-[#8a8d98] mb-2">GIAI VALIDATOR + EXPORT</div>
+                            <div class="text-xs mb-3">Real-time GS1 GIAI 8004 validation • Auto-save active</div>
+                            <div class="flex gap-x-2">
+                                <div class="px-3 py-1 text-xs rounded-xl border border-[#2e3037]">JSON</div>
+                                <div class="px-3 py-1 text-xs rounded-xl border border-[#2e3037]">CSV</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-[#2e3037] text-[10px] flex items-center justify-between text-[#8a8d98] font-mono">
+                        <div>SOVEREIGN CLINICAL MODE — AIR-GAPPED / ZERO-TELEMETRY</div>
+                        <div>100,000+ ROW CANVAS2D GRID</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUILD -->
+    <div id="build" class="max-w-screen-2xl mx-auto px-8 py-16">
+        <div class="max-w-2xl mb-8">
+            <div class="section-header">Build from Source</div>
+            <p class="mt-1.5 text-[#8a8d98]">Fully reproducible. Minimal dependencies. Designed for air-gapped Windows/Linux environments.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div>
+                <div class="flex items-center gap-x-2 mb-3 px-1 text-sm font-medium">
+                    <i class="fa-solid fa-c text-[#0DA471]"></i>
+                    <span>C++20 Engine</span>
+                </div>
+                <div class="code-block rounded-3xl p-6 mono text-sm">
+                    <div class="text-[#8a8d98] text-xs mb-1.5">WINDOWS (MSVC)</div>
+                    <pre class="overflow-x-auto text-[#e3e4e6]">cl.exe /O2 /LD /std:c++20 sovereign_engine.cpp /link /out:sovereign_engine.dll</pre>
+                    
+                    <div class="text-[#8a8d98] text-xs mt-5 mb-1.5">LINUX (GCC)</div>
+                    <pre class="overflow-x-auto text-[#e3e4e6]">g++ -O3 -shared -fPIC -std=c++20 sovereign_engine.cpp -o libsovereign_engine.so</pre>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-x-2 mb-3 px-1 text-sm font-medium">
+                    <i class="fa-brands fa-microsoft text-[#0DA471]"></i>
+                    <span>C# Desktop Application</span>
+                </div>
+                <div class="code-block rounded-3xl p-6 mono text-sm">
+                    <div class="text-[#8a8d98] text-xs mb-2">PLACE NATIVE BINARY THEN RESTORE</div>
+                    <pre class="overflow-x-auto text-[#e3e4e6]">dotnet add package Microsoft.Data.Sqlite
+dotnet add package DuckDB.NET.Data
+
+dotnet run</pre>
+                    <div class="mt-4 pt-4 border-t border-[#2e3037] text-xs text-[#8a8d98]">
+                        Copy <span class="font-mono text-[#0DA471]">sovereign_engine.dll</span> (or .so) into the output directory.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FINAL CTA -->
+    <div class="border-t border-[#2e3037]">
+        <div class="max-w-screen-2xl mx-auto px-8 py-14 text-center">
+            <div class="max-w-lg mx-auto">
+                <div class="mb-5">
+                    <span class="px-5 py-1.5 text-xs rounded-3xl border border-[#2e3037] bg-[#1b1c1f]">PRODUCTION READY FOR KSAU-HS INTRANET</span>
+                </div>
+                <h3 class="text-4xl font-semibold tracking-[-1px] mb-4">Deploy the Zenith stack today.</h3>
+                <p class="text-[#8a8d98] mb-8">Clone • Compile the engine • Launch the executive dashboard in your air-gapped clinical network.</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-3">
+                    <a href="https://github.com/Khawrzm/Logistics-Zero-BareMetal" target="_blank"
+                       class="inline-flex h-14 items-center justify-center gap-x-3 px-9 rounded-3xl border border-[#2e3037] hover:bg-[#1b1c1f] font-medium transition-all">
+                        <i class="fa-brands fa-github"></i>
+                        <span>View on GitHub</span>
+                    </a>
+                    <a href="https://github.com/Khawrzm/Logistics-Zero-BareMetal/releases/tag/v4.0.0-Absolute-Zenith" target="_blank"
+                       class="inline-flex h-14 items-center justify-center gap-x-3 px-9 rounded-3xl bg-[#0DA471] text-[#131417] font-semibold hover:bg-[#0a7a55] transition-all">
+                        Download Absolute Zenith
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-[#2e3037] bg-[#0f1012] text-xs">
+        <div class="max-w-screen-2xl mx-auto px-8 py-7 flex flex-col md:flex-row md:items-center justify-between gap-y-3 text-[#8a8d98]">
+            <div>
+                © 2026 KHAWRIZM Sovereign Labs • Riyadh, Kingdom of Saudi Arabia<br>
+                <span class="font-mono text-[10px]">Built for KSAU-HS • PDPL Compliant by Design</span>
+            </div>
+            <div class="flex items-center gap-x-6">
+                <a href="https://x.com/khawrzm" target="_blank" class="hover:text-[#0DA471] transition-colors">@khawrzm</a>
+                <a href="https://github.com/Khawrzm" target="_blank" class="hover:text-[#0DA471] transition-colors">GitHub</a>
+                <span class="font-mono opacity-60">v4.0.0 Absolute Zenith</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function init() {
+            // Copy buttons for code blocks
+            document.querySelectorAll('.code-block').forEach(wrapper => {
+                const pre = wrapper.querySelector('pre');
+                if (!pre) return;
+                
+                const btn = document.createElement('button');
+                btn.className = 'absolute top-5 right-5 text-xs px-3.5 py-1 rounded-2xl border border-[#2e3037] hover:bg-[#0DA471] hover:text-[#131417] hover:border-[#0DA471] flex items-center gap-x-1.5 transition-all';
+                btn.innerHTML = `<i class="fa-solid fa-copy text-xs"></i> <span class="text-[10px] font-medium">COPY</span>`;
+                
+                wrapper.style.position = 'relative';
+                wrapper.appendChild(btn);
+                
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+                        const orig = btn.innerHTML;
+                        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span class="text-[10px]">COPIED</span>`;
+                        setTimeout(() => btn.innerHTML = orig, 1600);
+                    });
+                };
+            });
+            
+            console.log('%c[Logistics-Zero] Full changelog history added. Zenith landing page ready.', 'color:#0DA471');
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>
