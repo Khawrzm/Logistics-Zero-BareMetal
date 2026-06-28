@@ -14,9 +14,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-find-replace@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/docs-ui@0.2.0/lib/index.css">
 
     <style>
         :root {
@@ -323,13 +322,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-render@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs-ui@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/umd/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/umd/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/umd/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-find-replace@0.2.0/lib/umd/index.js"></script>
 
     <script>
         // Check if hosted within C# WebView2, setup bridge fallback mock
@@ -342,12 +341,20 @@
             console.warn("WebView2 Host Object Bridge not available. Emulating in sandbox.", e);
         }
 
-        // 1. Initialize UniverJS core and sheet engines
+        // Configure default theme and override colors to match KSAU-HS Green branding
+        const defaultTheme = UniverDesign.themes.dark;
+        defaultTheme.green500 = '#0DA471';
+        defaultTheme.primaryColor = '#0DA471';
+        defaultTheme.bgNormalColor = '#1B1C1F';
+        defaultTheme.bgBodyColor = '#1B1C1F';
+
+        // 1. Initialize UniverJS core engine with dark mode settings
         const univer = new UniverCore.Univer({
-            theme: UniverDesign.themes.dark,
+            theme: defaultTheme,
+            darkMode: true
         });
 
-        // Register plugins matching clinical requirements
+        // Register the full ecosystem of Univer plugins
         univer.registerPlugin(UniverRender.UniverRenderEnginePlugin);
         univer.registerPlugin(UniverUI.UniverUIPlugin, {
             container: 'univer-container',
@@ -355,13 +362,13 @@
             footer: false,
             sidebar: false,
         });
+        univer.registerPlugin(UniverDocs.UniverDocsPlugin);
+        univer.registerPlugin(UniverDocsUI.UniverDocsUIPlugin);
         univer.registerPlugin(UniverSheets.UniverSheetsPlugin);
         univer.registerPlugin(UniverSheetsUI.UniverSheetsUIPlugin);
         univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
         univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
-        univer.registerPlugin(UniverSheetsConditionalFormatting.UniverSheetsConditionalFormattingPlugin);
-        univer.registerPlugin(UniverSheetsDataValidation.UniverSheetsDataValidationPlugin);
-        univer.registerPlugin(UniverSheetsFilter.UniverSheetsFilterPlugin);
+        univer.registerPlugin(UniverSheetsFindReplace.UniverSheetsFindReplacePlugin);
 
         // Create workbook instance
         const workbook = univer.createUniverSheet({
