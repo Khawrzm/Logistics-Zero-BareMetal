@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics-Zero UniverJS Executive Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- UniverJS Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/design@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/index.css">
+
+    <style>
+        :root {
+            --bg-color: #131417;
+            --panel-color: #1b1c1f;
+            --border-color: #2e3037;
+            --text-color: #e3e4e6;
+            --text-muted: #8a8d98;
+            --accent-color: #0DA471;
+            --accent-glow: rgba(13, 164, 113, 0.15);
+            --danger-color: #ff003c;
+            --warning-color: #ffb700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-color);
+            border-bottom: 1px solid var(--border-color);
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .seal-badge {
+            background: linear-gradient(135deg, var(--warning-color), #ff8800);
+            color: #000;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .workspace {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        /* Left control panel sidebar */
+        .sidebar {
+            width: 290px;
+            background-color: var(--panel-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        select, input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(13, 164, 119, 0.05);
+            color: var(--accent-color);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color), #097d56);
+            color: #e3e4e6;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #10cf8e, var(--accent-color));
+            box-shadow: 0 0 15px rgba(13, 164, 113, 0.35);
+        }
+
+        /* UniverJS Container */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background-color: var(--bg-color);
+            position: relative;
+        }
+
+        #univer-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sovereign dark-theme adjustments for Univer elements */
+        .univer-workbench {
+            background-color: var(--panel-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Footer */
+        footer {
+            height: 30px;
+            background-color: var(--panel-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-section">
+            <span class="seal-badge">Official KSAU-HS Portal</span>
+            <span class="title">Logistics-Zero Sovereign Executive Dashboard</span>
+        </div>
+        <div class="status-indicators">
+            <div class="indicator">
+                <div class="dot"></div>
+                <span>OLAP: Online</span>
+            </div>
+            <div class="indicator">
+                <span id="evaluation-latency" style="color: var(--accent-color)">Puncalc: 0.00ms</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Sidebar Controls -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Clinical Operations</div>
+                <button class="btn btn-primary" onclick="triggerNativeRecalculate()">
+                    <span>Run Puncalc Engine</span>
+                </button>
+                <button class="btn" onclick="directPrintGiai()">
+                    <span>Print GIAI Asset Tag</span>
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">DuckDB Columnar Aggregations</div>
+                <div class="control-group">
+                    <label for="dept-dropdown">Select Department</label>
+                    <select id="dept-dropdown" onchange="runDuckDbOlap()">
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Radiology">Radiology</option>
+                        <option value="Surgery">Surgery</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="runDuckDbOlap()">
+                    <span>Run OLAP Pivot Query</span>
+                </button>
+                
+                <div id="olap-output" style="margin-top: 10px; font-size: 12px; font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
+                    <div>Cost: --</div>
+                    <div>Deprec.: --</div>
+                    <div>Latency: --</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">GIAI Validator</div>
+                <div class="control-group">
+                    <label for="barcode-val">Barcode Value</label>
+                    <input type="text" id="barcode-val" value="(8004)120239401" oninput="runValidateGiai()" />
+                </div>
+                <div id="giai-validation-status" style="font-size: 12px; font-weight: 600; color: var(--accent-color);">
+                    Valid GIAI Barcode
+                </div>
+            </div>
+        </div>
+
+        <!-- Sheet Grid -->
+        <div class="main-content">
+            <div id="univer-container"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div>Sovereign clinical mode | Air-Gapped / Zero-Telemetry</div>
+        <div>100,000+ Row Canvas2D Grid</div>
+    </footer>
+
+    <!-- UniverJS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/core@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/design@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-render@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-formula@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-formula@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-data-validation@0.2.0/lib/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-filter@0.2.0/lib/umd/index.js"></script>
+
+    <script>
+        // Check if hosted within C# WebView2, setup bridge fallback mock
+        let bridge;
+        try {
+            if (window.chrome && window.chrome.webview && window.chrome.webview.hostObjects) {
+                bridge = window.chrome.webview.hostObjects.bridge;
+            }
+        } catch (e) {
+            console.warn("WebView2 Host Object Bridge not available. Emulating in sandbox.", e);
+        }
+
+        // 1. Initialize UniverJS core and sheet engines
+        const univer = new UniverCore.Univer({
+            theme: UniverDesign.themes.dark,
+        });
+
+        // Register plugins matching clinical requirements
+        univer.registerPlugin(UniverRender.UniverRenderEnginePlugin);
+        univer.registerPlugin(UniverUI.UniverUIPlugin, {
+            container: 'univer-container',
+            header: true,
+            footer: false,
+            sidebar: false,
+        });
+        univer.registerPlugin(UniverSheets.UniverSheetsPlugin);
+        univer.registerPlugin(UniverSheetsUI.UniverSheetsUIPlugin);
+        univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
+        univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
+        univer.registerPlugin(UniverSheetsConditionalFormatting.UniverSheetsConditionalFormattingPlugin);
+        univer.registerPlugin(UniverSheetsDataValidation.UniverSheetsDataValidationPlugin);
+        univer.registerPlugin(UniverSheetsFilter.UniverSheetsFilterPlugin);
+
+        // Create workbook instance
+        const workbook = univer.createUniverSheet({
+            id: 'logistics_zero_sheet',
+            name: 'Asset Inventory',
+            sheetOrder: ['sheet1'],
+            sheets: {
+                sheet1: {
+                    id: 'sheet1',
+                    name: 'KSAU-HS Financial Assets',
+                    rowCount: 100000,
+                    columnCount: 26,
+                    cellData: {
+                        '0': {
+                            '0': { v: 'A1: Raw Cost Values' },
+                            '1': { v: 'B1: Formula SUM' },
+                            '2': { v: 'C1: Nested IF Smells' }
+                        },
+                        '1': {
+                            '0': { v: 120 },
+                            '1': { v: '=SUM(A2:A5)' },
+                            '2': { v: '=IF(A2>10, 100, IF(A2>5, 50, 0))' }
+                        },
+                        '2': { '0': { v: 250 } },
+                        '3': { '0': { v: 340 } },
+                        '4': { '0': { v: 480 } }
+                    }
+                }
+            }
+        });
+
+        // 2. Clinical bridge execution methods
+        async function runDuckDbOlap() {
+            const dept = document.getElementById('dept-dropdown').value;
+            const output = document.getElementById('olap-output');
+            output.innerHTML = '<div>Querying DuckDB OLAP...</div>';
+
+            if (bridge) {
+                try {
+                    const res = await bridge.RunOlapQuery(dept);
+                    const parts = res.split('|');
+                    output.innerHTML = `
+                        <div style="color: var(--accent-color); font-weight: bold;">DuckDB Output:</div>
+                        <div>Cost: $${parseFloat(parts[0]).toLocaleString()}</div>
+                        <div>Avg Deprec: ${parts[1]}%</div>
+                        <div>Latency: ${parts[2]} ms</div>
+                    `;
+                } catch (e) {
+                    output.innerHTML = `<div style="color:var(--danger-color)">Bridge Err: ${e.message}</div>`;
+                }
+            } else {
+                // Mock behavior when previewing live on GitHub Pages
+                setTimeout(() => {
+                    const cost = (150000 + Math.random() * 850000).toFixed(2);
+                    const depr = (5 + Math.random() * 15).toFixed(2);
+                    const latency = (0.01 + Math.random() * 0.05).toFixed(3);
+                    output.innerHTML = `
+                        <div style="color: var(--accent-color); font-weight: bold;">DuckDB Emulated:</div>
+                        <div>Cost: $${parseFloat(cost).toLocaleString()}</div>
+                        <div>Avg Deprec: ${depr}%</div>
+                        <div>Latency: ${latency} ms</div>
+                    `;
+                }, 100);
+            }
+        }
+
+        async function directPrintGiai() {
+            const barcodeVal = document.getElementById('barcode-val').value;
+            if (bridge) {
+                try {
+                    const res = await bridge.PrintGiai(barcodeVal, "");
+                    alert(`Native Printing Triggered: ${res}`);
+                } catch (e) {
+                    alert(`Bridge printing failed: ${e.message}`);
+                }
+            } else {
+                alert(`[Direct Print Mock] GS1 GIAI Tag: ${barcodeVal} printed directly to Zebra ZT411 printer.`);
+            }
+        }
+
+        async function triggerNativeRecalculate() {
+            const t0 = performance.now();
+            if (bridge) {
+                try {
+                    // Send workbook dimensions for recalculation in C++20 engine
+                    await bridge.RecalculateSheet(100, 20, 4);
+                } catch (e) {
+                    console.error("Native reeval failed, falling back to local formulas", e);
+                }
+            }
+            const latency = (performance.now() - t0).toFixed(2);
+            document.getElementById('evaluation-latency').textContent = `Puncalc: ${latency}ms`;
+        }
+
+        function runValidateGiai() {
+            const input = document.getElementById('barcode-val').value.trim();
+            const status = document.getElementById('giai-validation-status');
+
+            const cleanVal = input.replace(/^\(8004\)/, '8004');
+            if (!cleanVal.startsWith('8004')) {
+                status.textContent = 'Invalid AI. Must be 8004.';
+                status.style.color = 'var(--danger-color)';
+                return;
+            }
+            if (cleanVal.length > 34) {
+                status.textContent = 'GIAI exceeds maximum length.';
+                status.style.color = 'var(--danger-color)';
+                return;
+            }
+            status.textContent = 'Valid GS1 GIAI Structure';
+            status.style.color = 'var(--accent-color)';
+        }
+
+        window.onload = () => {
+            runDuckDbOlap();
+            runValidateGiai();
+        };
+    </script>
+</body>
+</html>

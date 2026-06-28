@@ -10,18 +10,17 @@ namespace LogisticsZero {
         private const string SqliteDbPath = "vault.db";
 
         public void InitializeDatabase() {
-            // 1. Initialize SQLite vault in WAL mode
             var sqliteConnectionString = $"Data Source={SqliteDbPath}";
             using (var conn = new SqliteConnection(sqliteConnectionString)) {
                 conn.Open();
                 
-                // Set WAL journal mode to support high-concurrency writes
+                // Configure write-ahead logging (WAL) for concurrent reads/writes
                 using (var cmd = conn.CreateCommand()) {
                     cmd.CommandText = "PRAGMA journal_mode=WAL;";
                     cmd.ExecuteNonQuery();
                 }
 
-                // Create the KSAU-HS asset inventory table
+                // Initialize KSAU-HS clinical inventory scheme
                 using (var cmd = conn.CreateCommand()) {
                     cmd.CommandText = @"
                         CREATE TABLE IF NOT EXISTS financial_assets (
@@ -34,7 +33,7 @@ namespace LogisticsZero {
                     cmd.ExecuteNonQuery();
                 }
 
-                // Count rows; if empty, seed with 10,000+ records
+                // Check and seed 10,000 mock rows if database is empty
                 long count = 0;
                 using (var cmd = conn.CreateCommand()) {
                     cmd.CommandText = "SELECT COUNT(*) FROM financial_assets;";
@@ -91,20 +90,18 @@ namespace LogisticsZero {
             double totalCost = 0.0;
             double avgDepreciation = 0.0;
 
-            // DuckDB.NET queries the local SQLite file directly via its SQLite Scanner extension
+            // Connects DuckDB in-memory database and loads SQLite file via sqlite_scan
             using (var duckConn = new DuckDBConnection("Data Source=:memory:")) {
                 duckConn.Open();
                 
                 using (var cmd = duckConn.CreateCommand()) {
-                    // Install and load the SQLite extension in DuckDB
                     cmd.CommandText = "INSTALL sqlite; LOAD sqlite;";
                     cmd.ExecuteNonQuery();
 
-                    // Read directly from the SQLite vault using sqlite_scan for O(1) aggregations
                     cmd.CommandText = $@"
                         SELECT SUM(cost), AVG(depreciation_rate)
                         FROM sqlite_scan('{SqliteDbPath}', 'financial_assets')
-                        WHERE department = $1;";
+                        WHERE department = ?;";
                     
                     var param = cmd.CreateParameter();
                     param.Value = department;

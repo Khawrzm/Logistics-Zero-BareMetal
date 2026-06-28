@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 #include <numeric>
 
 #ifdef _WIN32
@@ -12,6 +13,36 @@
 #define EXPORT __attribute__((visibility("default")))
 #endif
 
+// Operation codes for formula AST evaluation
+enum OpType : uint8_t {
+    OP_CONST = 0,
+    OP_CELL_REF = 1,
+    OP_ADD = 2,
+    OP_SUB = 3,
+    OP_MUL = 4,
+    OP_DIV = 5,
+    OP_SUM = 6,
+    OP_AVG = 7
+};
+
+// Blittable AST node layout
+struct ExpressionNode {
+    OpType type;
+    double const_value;
+    int cell_ref_idx;
+    int range_start_idx;
+    int range_end_idx;
+};
+
+// Blittable Cell node layout containing evaluation state
+struct Cell {
+    int id;
+    double value;
+    int expr_start; // Index in the global expression nodes span
+    int expr_count; // Number of expression nodes belonging to this cell
+    uint64_t sync_state; // Upper 32 bits: Owner Thread ID, Lower 32 bits: CellState
+};
+
 enum CellState : uint32_t {
     STATE_DIRTY = 0,
     STATE_COMPUTING = 1,
@@ -19,26 +50,81 @@ enum CellState : uint32_t {
     STATE_CYCLE = 3
 };
 
-struct Cell {
-    int id;
-    double value;
-    int formula_type; // 0: Raw value, 1: SUM, 2: AVERAGE
-    int dep_start;    // Index in the dependencies array
-    int dep_count;    // Number of dependencies
-    uint64_t sync_state; // Upper 32-bits: Thread ID, Lower 32-bits: CellState
-};
-
-// Hash function to get a unique 32-bit ID for a thread
+// Hashed thread ID generation for tie-breaking
 uint32_t GetCurrentThreadIdHash() {
     auto id = std::this_thread::get_id();
     return std::hash<std::thread::id>{}(id) & 0xFFFFFFFF;
 }
 
-// Recursive cell evaluation with speculative reevaluation & CAS tie-breaker
-bool EvaluateCell(
+// Forward declaration of AST evaluator
+bool EvaluateAST(
     int cell_idx,
     std::span<Cell> cells,
-    std::span<const int> dep_indices,
+    std::span<const ExpressionNode> expr_nodes,
+    uint32_t thread_hash
+);
+
+// Evaluates an individual AST node for a cell
+double EvaluateNode(
+    const ExpressionNode& node,
+    std::span<Cell> cells,
+    std::span<const ExpressionNode> expr_nodes,
+    uint32_t thread_hash,
+    bool& success
+) {
+    switch (node.type) {
+        case OP_CONST:
+            return node.const_value;
+            
+        case OP_CELL_REF:
+            if (node.cell_ref_idx >= 0 && node.cell_ref_idx < static_cast<int>(cells.size())) {
+                if (!EvaluateAST(node.cell_ref_idx, cells, expr_nodes, thread_hash)) {
+                    success = false;
+                }
+                return cells[node.cell_ref_idx].value;
+            }
+            success = false;
+            return 0.0;
+            
+        case OP_SUM: {
+            double sum = 0.0;
+            for (int i = node.range_start_idx; i <= node.range_end_idx; ++i) {
+                if (i >= 0 && i < static_cast<int>(cells.size())) {
+                    if (!EvaluateAST(i, cells, expr_nodes, thread_hash)) {
+                        success = false;
+                    }
+                    sum += cells[i].value;
+                }
+            }
+            return sum;
+        }
+        
+        case OP_AVG: {
+            double sum = 0.0;
+            int count = 0;
+            for (int i = node.range_start_idx; i <= node.range_end_idx; ++i) {
+                if (i >= 0 && i < static_cast<int>(cells.size())) {
+                    if (!EvaluateAST(i, cells, expr_nodes, thread_hash)) {
+                        success = false;
+                    }
+                    sum += cells[i].value;
+                    count++;
+                }
+            }
+            return (count > 0) ? (sum / count) : 0.0;
+        }
+        
+        default:
+            success = false;
+            return 0.0;
+    }
+}
+
+// Lock-free cell evaluation with speculative reevaluation & Thread-ID tie-breaking
+bool EvaluateAST(
+    int cell_idx,
+    std::span<Cell> cells,
+    std::span<const ExpressionNode> expr_nodes,
     uint32_t thread_hash
 ) {
     Cell& cell = cells[cell_idx];
@@ -52,33 +138,31 @@ bool EvaluateCell(
         if (state == STATE_UP_TO_DATE) {
             return true;
         }
-
         if (state == STATE_CYCLE) {
-            return false; // Cycle detected
+            return false;
         }
 
         if (state == STATE_COMPUTING) {
             if (owner == thread_hash) {
-                // Cycle detected: The current thread reached this cell again
+                // Cycle detected in current thread's dependency path
                 uint64_t cycle_desired = (static_cast<uint64_t>(thread_hash) << 32) | STATE_CYCLE;
                 state_ref.compare_exchange_strong(current, cycle_desired);
                 return false;
             }
 
-            // Cyclic dependency resolve without locks: Speculative Reevaluation with Thread ID as Tie-Breaker
+            // Speculative Reevaluation using Thread ID as a Tie-Breaker (CAS)
             if (thread_hash > owner) {
-                // Speculative takeover: Attempt to take over computation from lower-priority thread
+                // Speculative takeover: Attempt to preempt evaluation of the lower priority thread
                 uint64_t takeover_desired = (static_cast<uint64_t>(thread_hash) << 32) | STATE_COMPUTING;
                 if (state_ref.compare_exchange_strong(current, takeover_desired)) {
-                    // Takeover successful! Fall through to compute.
+                    // Preemption successful, fall through to compute
                 } else {
-                    continue; // State changed, retry
+                    continue; // State changed during CAS, loop again
                 }
             } else {
-                // Thread hash is lower: back off to let the higher thread finish or wait speculatively
+                // Lower priority: yield and allow higher-priority thread to complete
                 std::this_thread::yield();
-                // To prevent deadlock, if wait takes too long, we read the current value speculatively
-                return true; 
+                return true; // Return true speculatively to avoid deadlocking
             }
         }
 
@@ -86,37 +170,42 @@ bool EvaluateCell(
             uint64_t expected = current;
             uint64_t desired = (static_cast<uint64_t>(thread_hash) << 32) | STATE_COMPUTING;
             if (state_ref.compare_exchange_strong(expected, desired)) {
-                break; // We own the computation now
+                break; // Lock acquired
             }
         }
     }
 
-    // Zero-copy access to dependencies of this cell using std::span
-    std::span<const int> cell_deps = dep_indices.subspan(cell.dep_start, cell.dep_count);
+    // Process evaluation of AST expression nodes using std::span
+    std::span<const ExpressionNode> cell_nodes = expr_nodes.subspan(cell.expr_start, cell.expr_count);
     
-    // Evaluate all dependencies
     bool success = true;
-    double sum = 0.0;
-    int count = 0;
+    double result = 0.0;
 
-    for (int dep_idx : cell_deps) {
-        if (dep_idx >= 0 && dep_idx < static_cast<int>(cells.size())) {
-            if (!EvaluateCell(dep_idx, cells, dep_indices, thread_hash)) {
+    if (cell_nodes.empty()) {
+        result = cell.value; // Raw constant cell value
+    } else {
+        // Evaluate the root operations (simple binary AST evaluator)
+        const ExpressionNode& root = cell_nodes[0];
+        
+        if (root.type == OP_ADD || root.type == OP_SUB || root.type == OP_MUL || root.type == OP_DIV) {
+            if (cell_nodes.size() >= 3) {
+                double left = EvaluateNode(cell_nodes[1], cells, expr_nodes, thread_hash, success);
+                double right = EvaluateNode(cell_nodes[2], cells, expr_nodes, thread_hash, success);
+                
+                if (root.type == OP_ADD) result = left + right;
+                else if (root.type == OP_SUB) result = left - right;
+                else if (root.type == OP_MUL) result = left * right;
+                else if (root.type == OP_DIV) result = (right != 0.0) ? (left / right) : 0.0;
+            } else {
                 success = false;
             }
-            sum += cells[dep_idx].value;
-            count++;
+        } else {
+            result = EvaluateNode(root, cells, expr_nodes, thread_hash, success);
         }
     }
 
-    // Compute final value based on formula type
     if (success) {
-        if (cell.formula_type == 1) { // SUM
-            cell.value = sum;
-        } else if (cell.formula_type == 2) { // AVERAGE
-            cell.value = (count > 0) ? (sum / count) : 0.0;
-        }
-        // Write back clean state
+        cell.value = result;
         uint64_t final_state = (static_cast<uint64_t>(thread_hash) << 32) | STATE_UP_TO_DATE;
         state_ref.store(final_state, std::memory_order_release);
         return true;
@@ -128,31 +217,29 @@ bool EvaluateCell(
 }
 
 extern "C" {
-    // Exported function for C# FFI Bridge
     EXPORT void RecalculateEngine(
         Cell* cells_ptr,
         int cells_count,
-        const int* dep_indices_ptr,
-        int dep_indices_count,
+        const ExpressionNode* expr_nodes_ptr,
+        int expr_nodes_count,
         int thread_count
     ) {
-        // Zero-copy wrapping of input arrays using std::span
+        // Zero-copy wrapping using std::span
         std::span<Cell> cells(cells_ptr, cells_count);
-        std::span<const int> dep_indices(dep_indices_ptr, dep_indices_count);
+        std::span<const ExpressionNode> expr_nodes(expr_nodes_ptr, expr_nodes_count);
 
         if (thread_count <= 1) {
             uint32_t thread_hash = GetCurrentThreadIdHash();
             for (int i = 0; i < cells_count; ++i) {
-                EvaluateCell(i, cells, dep_indices, thread_hash);
+                EvaluateAST(i, cells, expr_nodes, thread_hash);
             }
         } else {
-            // Multi-threaded speculative execution
             std::vector<std::thread> workers;
             for (int t = 0; t < thread_count; ++t) {
-                workers.emplace_back([cells, dep_indices, cells_count, t]() {
-                    uint32_t thread_hash = GetCurrentThreadIdHash() + t; // unique offset
+                workers.emplace_back([cells, expr_nodes, cells_count, t]() {
+                    uint32_t thread_hash = GetCurrentThreadIdHash() + t;
                     for (int i = 0; i < cells_count; ++i) {
-                        EvaluateCell(i, cells, dep_indices, thread_hash);
+                        EvaluateAST(i, cells, expr_nodes, thread_hash);
                     }
                 });
             }
