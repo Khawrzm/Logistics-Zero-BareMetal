@@ -95,12 +95,12 @@ namespace LogisticsZero {
                 webView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
                 webView.CoreWebView2.Settings.IsPasswordAutosaveEnabled = false;
 
-                // Load the local UniverJS UI frontend
-                string htmlPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "univer_executive.html");
+                // Load the local UniverJS UI frontend from Temp directory
+                string htmlPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "univer_executive.html");
                 if (System.IO.File.Exists(htmlPath)) {
                     webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
                 } else {
-                    webView.CoreWebView2.NavigateToString("<h2>univer_executive.html not found in execution directory!</h2>");
+                    webView.CoreWebView2.NavigateToString("<h2>univer_executive.html not found in Temp directory!</h2>");
                 }
             } catch (Exception ex) {
                 MessageBox.Show($"Failed to initialize WebView2: {ex.Message}", "Initialization Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
