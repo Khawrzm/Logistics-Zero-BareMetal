@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SovereignGrid • Open Source Local Spreadsheet</title>
-    <!-- Google Fonts -->
+    <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- UniverJS Stylesheets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/design@0.2.0/lib/index.css">
@@ -31,12 +33,6 @@
             --warning-color: #ffb700;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
@@ -47,206 +43,117 @@
             overflow: hidden;
         }
 
-        header {
-            background-color: var(--panel-color);
-            border-bottom: 1px solid var(--border-color);
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 100;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-        }
-
-        .title {
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .actions-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn {
-            background-color: #25272d;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn:hover {
-            border-color: var(--accent-color);
-            background-color: rgba(13, 164, 119, 0.08);
-            color: var(--accent-color);
-        }
-
-        .btn-accent {
-            background: linear-gradient(135deg, var(--accent-color), #097d56);
-            border: none;
-        }
-
-        .btn-accent:hover {
-            background: linear-gradient(135deg, #10cf8e, var(--accent-color));
-            box-shadow: 0 0 10px rgba(13, 164, 113, 0.25);
-            color: #fff;
-        }
-
-        .sql-input-group {
-            display: flex;
-            align-items: center;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 2px 6px;
-            margin-right: 8px;
-        }
-
-        .sql-input {
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            width: 280px;
-            outline: none;
-            padding: 4px;
-        }
-
-        /* Full screen UniverJS Container */
-        .workspace {
-            flex: 1;
-            display: flex;
-            min-height: 0;
-            position: relative;
-        }
-
-        #univer-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Overlay modal for SQL results */
-        #olap-modal {
-            display: none;
-            position: absolute;
-            bottom: 35px;
-            right: 20px;
-            width: 480px;
-            max-height: 280px;
-            background-color: var(--panel-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            z-index: 1000;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: #16171a;
-        }
-
-        .modal-body {
-            padding: 12px;
-            overflow-y: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: #b5b7c0;
-            flex: 1;
-        }
-
-        footer {
-            height: 28px;
-            background-color: var(--panel-color);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-muted);
-            z-index: 10;
+        /* Sovereign theme overrides for Univer */
+        .univer-workbench {
+            background-color: var(--panel-color) !important;
+            border-color: var(--border-color) !important;
         }
     </style>
 </head>
-<body>
+<body class="bg-[#131417] text-[#e3e4e6]">
 
     <!-- Header Navbar -->
-    <header>
-        <div class="logo-section">
-            <div class="status-dot"></div>
-            <span class="title" id="title-text">SovereignGrid</span>
-            <span style="font-size: 10px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 1px 6px; border-radius: 10px;" id="badge-mode">LOCAL ENCLAVE</span>
+    <header class="bg-[#1b1c1f] border-b border-[#2e3037] h-[55px] flex items-center justify-between px-5 z-40">
+        <div class="flex items-center gap-2">
+            <button onclick="toggleSidebar()" class="text-lg hover:text-[#0DA471] transition-all p-1.5 rounded-lg border border-[#2e3037] mr-1" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#0DA471] shadow-[0_0_8px_#0DA471]"></div>
+            <span class="font-semibold text-sm tracking-wide" id="title-text">SovereignGrid</span>
+            <span class="text-[9px] text-[#8a8d98] border border-[#2e3037] px-2 py-0.5 rounded-xl uppercase font-medium" id="badge-mode">LOCAL ENCLAVE</span>
         </div>
 
-        <div class="actions-bar">
+        <div class="flex items-center gap-3">
             <!-- DuckDB SQL OLAP Input -->
-            <div class="sql-input-group">
-                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-color); font-weight: bold; padding-left: 4px;">SQL></span>
-                <input type="text" id="sql-query-val" class="sql-input" value="SELECT category, SUM(price) FROM inventory_items GROUP BY category" />
-                <button class="btn" style="padding: 2px 8px; border: none; background: transparent; color: var(--accent-color);" onclick="runSqlOlap()" id="sql-run-btn">Run Query</button>
+            <div class="flex items-center bg-[#131417] border border-[#2e3037] rounded-lg px-2 py-1">
+                <span class="font-mono text-xs text-[#0DA471] font-bold mr-1">SQL></span>
+                <input type="text" id="sql-query-val" class="bg-transparent border-none text-[#e3e4e6] font-mono text-[11px] w-[260px] outline-none" value="SELECT category, SUM(price) FROM inventory_items GROUP BY category" />
+                <button class="text-xs text-[#0DA471] hover:text-[#10cf8e] font-semibold px-2" onclick="runSqlOlap()" id="sql-run-btn">Run Query</button>
             </div>
 
-            <button class="btn btn-accent" onclick="triggerRecalculate()" id="btn-recalc">Run C++20 Atomics</button>
-            <button class="btn" onclick="directPrint()" id="btn-print">Print GIAI Tag</button>
+            <button class="bg-[#0DA471] text-[#131417] hover:bg-[#10cf8e] hover:shadow-[0_0_10px_rgba(13,164,113,0.25)] transition-all font-semibold text-xs px-3 py-1.5 rounded-lg" onclick="triggerRecalculate()" id="btn-recalc">Run C++20 Atomics</button>
+            <button class="bg-[#25272d] border border-[#2e3037] hover:border-[#0DA471] hover:text-[#0DA471] text-[#e3e4e6] transition-all text-xs px-3 py-1.5 rounded-lg" onclick="directPrint()" id="btn-print">Print GIAI Tag</button>
             
-            <div style="width: 1px; height: 16px; background-color: var(--border-color); margin: 0 4px;"></div>
+            <div class="w-px h-4 bg-[#2e3037]"></div>
             
-            <button class="btn" onclick="exportData('csv')">CSV</button>
-            <button class="btn" onclick="exportData('json')">JSON</button>
-            <button class="btn" onclick="toggleLanguage()" id="btn-lang" style="padding: 6px 10px;">عربي</button>
+            <button class="bg-[#25272d] border border-[#2e3037] hover:border-[#0DA471] hover:text-[#0DA471] text-[#e3e4e6] transition-all text-xs px-2.5 py-1.5 rounded-lg" onclick="exportData('csv')">CSV</button>
+            <button class="bg-[#25272d] border border-[#2e3037] hover:border-[#0DA471] hover:text-[#0DA471] text-[#e3e4e6] transition-all text-xs px-2.5 py-1.5 rounded-lg" onclick="exportData('json')">JSON</button>
+            <button class="bg-[#25272d] border border-[#2e3037] hover:text-[#0DA471] text-[#e3e4e6] text-xs px-3 py-1.5 rounded-lg hover:border-[#0DA471]" onclick="toggleLanguage()" id="btn-lang">عربي</button>
         </div>
     </header>
 
-    <!-- Workspace Sheet -->
-    <div class="workspace">
-        <div id="univer-container"></div>
+    <!-- Workspace -->
+    <div class="workspace flex flex-1 min-h-0 relative">
+        <!-- Collapsible Left Sidebar -->
+        <div id="sidebar-container" class="w-[260px] bg-[#1b1c1f] border-r border-[#2e3037] flex flex-col p-5 gap-5 overflow-y-auto z-30 transition-all duration-300">
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between border-b border-[#2e3037] pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#8a8d98]" id="sidebar-header-text">Spreadsheet Controls</span>
+                <button onclick="toggleSidebar()" class="text-[#8a8d98] hover:text-white transition-colors" title="Collapse Sidebar">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- Numbered Organized Mathematical Tables Presets -->
+            <div class="flex flex-col gap-3">
+                <span class="text-[11px] font-bold text-[#0DA471] uppercase tracking-wider" id="presets-title">Mathematical Grids</span>
+                
+                <button onclick="loadPreset(1)" class="w-full bg-[#25272d] border border-[#2e3037] text-left hover:border-[#0DA471] hover:bg-neutral-800 text-xs px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all">
+                    <span class="w-5 h-5 rounded-md bg-[#0DA471]/15 text-[#0DA471] font-bold flex items-center justify-center font-mono">1</span>
+                    <span id="preset1-lbl">Financial Model Template</span>
+                </button>
+
+                <button onclick="loadPreset(2)" class="w-full bg-[#25272d] border border-[#2e3037] text-left hover:border-[#0DA471] hover:bg-neutral-800 text-xs px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all">
+                    <span class="w-5 h-5 rounded-md bg-[#0DA471]/15 text-[#0DA471] font-bold flex items-center justify-center font-mono">2</span>
+                    <span id="preset2-lbl">Atomics Cascading Stress</span>
+                </button>
+
+                <button onclick="loadPreset(3)" class="w-full bg-[#25272d] border border-[#2e3037] text-left hover:border-[#0DA471] hover:bg-neutral-800 text-xs px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all">
+                    <span class="w-5 h-5 rounded-md bg-[#0DA471]/15 text-[#0DA471] font-bold flex items-center justify-center font-mono">3</span>
+                    <span id="preset3-lbl">Array Vector Multiplier</span>
+                </button>
+
+                <button onclick="loadPreset(4)" class="w-full bg-[#25272d] border border-[#2e3037] text-left hover:border-[#0DA471] hover:bg-neutral-800 text-xs px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all">
+                    <span class="w-5 h-5 rounded-md bg-[#0DA471]/15 text-[#0DA471] font-bold flex items-center justify-center font-mono">4</span>
+                    <span id="preset4-lbl">Nested-IF refactoring</span>
+                </button>
+            </div>
+
+            <!-- local utilities -->
+            <div class="flex flex-col gap-3 mt-4">
+                <span class="text-[11px] font-bold text-[#8a8d98] uppercase tracking-wider" id="utils-title">Storage & Logging</span>
+                <div class="bg-[#131417] border border-[#2e3037] rounded-lg p-3 text-xs space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-[#8a8d98]">Auto-save:</span>
+                        <span class="text-[#0DA471]" id="save-status">Active (15s)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[#8a8d98]">Engine:</span>
+                        <span class="font-mono">C++20/Atomics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sheet Grid Container -->
+        <div class="flex-1 min-w-0 relative">
+            <div id="univer-container"></div>
+        </div>
 
         <!-- SQL OLAP modal popup -->
-        <div id="olap-modal">
-            <div class="modal-header">
-                <span style="font-size: 11px; font-weight: 600; color: var(--accent-color);" id="modal-title">DuckDB Columnar Query Results</span>
-                <button onclick="closeModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;">&times;</button>
+        <div id="olap-modal" class="hidden flex-col absolute bottom-10 right-5 w-[480px] max-h-[300px] bg-[#1b1c1f] border border-[#2e3037] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-50 overflow-hidden">
+            <div class="flex justify-between items-center px-4 py-2 border-b border-[#2e3037] bg-[#16171a]">
+                <span class="text-[11px] font-semibold text-[#0DA471]" id="modal-title">DuckDB Columnar Query Results</span>
+                <button onclick="closeModal()" class="text-[#8a8d98] hover:text-white text-lg font-bold">&times;</button>
             </div>
-            <div class="modal-body" id="modal-body-content">
+            <div class="p-4 overflow-y-auto font-mono text-[11px] text-[#b5b7c0] flex-1" id="modal-body-content">
                 No query executed.
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer>
+    <footer class="bg-[#1b1c1f] border-t border-[#2e3037] h-[28px] flex items-center justify-between px-5 text-xs">
         <div id="footer-left">SovereignGrid • Open-Source Offline Engine</div>
         <div id="evaluation-latency" style="color: var(--accent-color)">Puncalc Atomics: 0.00ms</div>
         <div id="footer-right">100,000+ Row Canvas2D Grid</div>
@@ -356,13 +263,114 @@
             } catch (err) {}
         }, 15000);
 
+        // Sidebar Collapse/Expand Toggle
+        let isSidebarOpen = true;
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            const sidebar = document.getElementById('sidebar-container');
+            if (isSidebarOpen) {
+                sidebar.classList.remove('hidden');
+                sidebar.style.width = '260px';
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.style.width = '0px';
+            }
+            // Trigger UniverJS canvas bounds recalculation on resize
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        }
+
+        // Load Numbered Preset Mathematical Tables
+        function loadPreset(id) {
+            const sheet = workbook.getActiveSheet();
+            
+            // Clear first 25 rows and 6 columns to prepare clean grid
+            for (let r = 0; r < 25; r++) {
+                for (let c = 0; c < 6; c++) {
+                    sheet.getRange(r, c).setValue("");
+                }
+            }
+
+            if (id === 1) {
+                // Financial Model Template
+                sheet.getRange(0, 0).setValue("Asset Type");
+                sheet.getRange(0, 1).setValue("Initial Cost");
+                sheet.getRange(0, 2).setValue("Disposal Value");
+                sheet.getRange(0, 3).setValue("Net Depreciated Value");
+                
+                sheet.getRange(1, 0).setValue("Hardware");
+                sheet.getRange(1, 1).setValue(25000);
+                sheet.getRange(1, 2).setValue(5000);
+                sheet.getRange(1, 3).setValue("=B2-C2");
+                
+                sheet.getRange(2, 0).setValue("Office Furniture");
+                sheet.getRange(2, 1).setValue(12000);
+                sheet.getRange(2, 2).setValue(2000);
+                sheet.getRange(2, 3).setValue("=B3-C3");
+                
+                sheet.getRange(3, 0).setValue("Networking Gear");
+                sheet.getRange(3, 1).setValue(18500);
+                sheet.getRange(3, 2).setValue(3500);
+                sheet.getRange(3, 3).setValue("=B4-C4");
+                
+                sheet.getRange(4, 0).setValue("Total Sum");
+                sheet.getRange(4, 1).setValue("=SUM(B2:B4)");
+                sheet.getRange(4, 2).setValue("=SUM(C2:C4)");
+                sheet.getRange(4, 3).setValue("=SUM(D2:D4)");
+                console.log("Preset 1: Financial Model loaded.");
+            } 
+            else if (id === 2) {
+                // Atomics Cascading Stress
+                sheet.getRange(0, 0).setValue("Cascade Link");
+                sheet.getRange(0, 1).setValue("Thread Safe Value");
+                
+                sheet.getRange(1, 0).setValue("Initial Seed");
+                sheet.getRange(1, 1).setValue(5);
+                
+                for (let i = 2; i < 16; i++) {
+                    sheet.getRange(i, 0).setValue(`Atomic Link ${i-1}`);
+                    sheet.getRange(i, 1).setValue(`=B${i}*2`); // Cascades: A_n * 2
+                }
+                console.log("Preset 2: Atomics Cascading loaded.");
+            } 
+            else if (id === 3) {
+                // Vector Multiplication
+                sheet.getRange(0, 0).setValue("Base Matrix");
+                sheet.getRange(1, 0).setValue(100);
+                sheet.getRange(2, 0).setValue(200);
+                sheet.getRange(3, 0).setValue(300);
+                sheet.getRange(4, 0).setValue(400);
+                
+                sheet.getRange(0, 1).setValue("Scale Factor");
+                sheet.getRange(1, 1).setValue(1.5);
+                
+                sheet.getRange(0, 2).setValue("Vector Result");
+                sheet.getRange(1, 2).setValue("=A2:A5*B2"); // Spill/Array Multiplication
+                console.log("Preset 3: Vector spill loaded.");
+            } 
+            else if (id === 4) {
+                // Nested-IF Refactoring
+                sheet.getRange(0, 0).setValue("Score Grade");
+                sheet.getRange(1, 0).setValue(95);
+                sheet.getRange(2, 0).setValue(82);
+                sheet.getRange(3, 0).setValue(65);
+                
+                sheet.getRange(0, 1).setValue("Result (IFS)");
+                sheet.getRange(1, 1).setValue('=IFS(A2>=90, "Zenith", A2>=80, "Optimal", true, "Regular")');
+                sheet.getRange(2, 1).setValue('=IFS(A3>=90, "Zenith", A3>=80, "Optimal", true, "Regular")');
+                sheet.getRange(3, 1).setValue('=IFS(A4>=90, "Zenith", A4>=80, "Optimal", true, "Regular")');
+                console.log("Preset 4: Nested IFS refactoring loaded.");
+            }
+        }
+
         // 2. SQL OLAP Query Execution using DuckDB over SQLite
         async function runSqlOlap() {
             const query = document.getElementById('sql-query-val').value.trim();
             const modal = document.getElementById('olap-modal');
             const modalBody = document.getElementById('modal-body-content');
             
-            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
             modalBody.innerHTML = 'Executing SQL pivot query...';
 
             if (bridge) {
@@ -378,18 +386,18 @@
                     }
 
                     // Build simple HTML table to display JSON results
-                    let html = `<div style="color:var(--accent-color); font-weight:bold; margin-bottom:8px;">Query speed: ${latency} ms</div>`;
-                    html += `<table style="width:100%; border-collapse:collapse; text-align:left;">`;
+                    let html = `<div class="text-[#0DA471] font-bold mb-2">Query speed: ${latency} ms</div>`;
+                    html += `<table class="w-full text-left border-collapse">`;
                     
                     if (data.length > 0) {
                         const headers = Object.keys(data[0]);
-                        html += `<tr style="border-bottom:1px solid var(--border-color); color:#fff;">`;
-                        headers.forEach(h => html += `<th style="padding:4px;">${h}</th>`);
+                        html += `<tr class="border-b border-[#2e3037] text-white">`;
+                        headers.forEach(h => html += `<th class="p-1">${h}</th>`);
                         html += `</tr>`;
                         
                         data.forEach(row => {
-                            html += `<tr style="border-bottom:1px solid #23252a;">`;
-                            headers.forEach(h => html += `<td style="padding:4px;">${row[h]}</td>`);
+                            html += `<tr class="border-b border-[#23252a]">`;
+                            headers.forEach(h => html += `<td class="p-1">${row[h]}</td>`);
                             html += `</tr>`;
                         });
                     } else {
@@ -399,25 +407,25 @@
                     modalBody.innerHTML = html;
 
                 } catch (err) {
-                    modalBody.innerHTML = `<span style="color:var(--danger-color)">Bridge failure: ${err.message}</span>`;
+                    modalBody.innerHTML = `<span class="text-[#ff003c]">Bridge failure: ${err.message}</span>`;
                 }
             } else {
                 // Emulation when browsing on GitHub Pages
                 setTimeout(() => {
                     modalBody.innerHTML = `
-                        <div style="color:var(--accent-color); font-weight:bold; margin-bottom:8px;">Query speed: 0.043 ms (Mock)</div>
-                        <table style="width:100%; border-collapse:collapse; text-align:left;">
-                            <tr style="border-bottom:1px solid var(--border-color); color:#fff;">
-                                <th style="padding:4px;">category</th>
-                                <th style="padding:4px;">sum(price)</th>
+                        <div class="text-[#0DA471] font-bold mb-2">Query speed: 0.043 ms (Mock)</div>
+                        <table class="w-full text-left border-collapse">
+                            <tr class="border-b border-[#2e3037] text-white">
+                                <th class="p-1">category</th>
+                                <th class="p-1">sum(price)</th>
                             </tr>
-                            <tr style="border-bottom:1px solid #23252a;">
-                                <td style="padding:4px;">Hardware</td>
-                                <td style="padding:4px;">5,230.50</td>
+                            <tr class="border-b border-[#23252a]">
+                                <td class="p-1">Hardware</td>
+                                <td class="p-1">5,230.50</td>
                             </tr>
-                            <tr style="border-bottom:1px solid #23252a;">
-                                <td style="padding:4px;">Electronics</td>
-                                <td style="padding:4px;">12,940.00</td>
+                            <tr class="border-b border-[#23252a]">
+                                <td class="p-1">Electronics</td>
+                                <td class="p-1">12,940.00</td>
                             </tr>
                         </table>
                     `;
@@ -426,7 +434,7 @@
         }
 
         function closeModal() {
-            document.getElementById('olap-modal').style.display = 'none';
+            document.getElementById('olap-modal').classList.add('hidden');
         }
 
         // C++ Math Engine Reevaluation
@@ -510,7 +518,15 @@
                 print: "Print GIAI Tag",
                 runBtn: "Run Query",
                 footerLeft: "SovereignGrid • Open-Source Offline Engine",
-                langBtn: "عربي"
+                langBtn: "عربي",
+                sidebarHeader: "Spreadsheet Controls",
+                presets: "Mathematical Grids",
+                preset1: "Financial Model Template",
+                preset2: "Atomics Cascading Stress",
+                preset3: "Array Vector Multiplier",
+                preset4: "Nested-IF refactoring",
+                utils: "Storage & Logging",
+                saveStatus: "Active (15s)"
             },
             ar: {
                 title: "الشبكة المستقلة",
@@ -519,7 +535,15 @@
                 print: "طباعة ملصق GIAI",
                 runBtn: "نفّذ الاستعلام",
                 footerLeft: "SovereignGrid • محرك محلي مفتوح المصدر",
-                langBtn: "English"
+                langBtn: "English",
+                sidebarHeader: "عناصر التحكم بالجدول",
+                presets: "الجداول الحسابية المنظمة",
+                preset1: "نموذج الحسابات المالية (1)",
+                preset2: "اختبار معالجة محرك Atomics (2)",
+                preset3: "ضرب المصفوفات والأشعة (3)",
+                preset4: "تبسيط الشروط المداخلة (4)",
+                utils: "التخزين والمزامنة",
+                saveStatus: "نشط (كل 15 ثانية)"
             }
         };
 
@@ -535,6 +559,15 @@
             document.getElementById('sql-run-btn').textContent = translations[lang].runBtn;
             document.getElementById('footer-left').textContent = translations[lang].footerLeft;
             document.getElementById('btn-lang').textContent = translations[lang].langBtn;
+            
+            document.getElementById('sidebar-header-text').textContent = translations[lang].sidebarHeader;
+            document.getElementById('presets-title').textContent = translations[lang].presets;
+            document.getElementById('preset1-lbl').textContent = translations[lang].preset1;
+            document.getElementById('preset2-lbl').textContent = translations[lang].preset2;
+            document.getElementById('preset3-lbl').textContent = translations[lang].preset3;
+            document.getElementById('preset4-lbl').textContent = translations[lang].preset4;
+            document.getElementById('utils-title').textContent = translations[lang].utils;
+            document.getElementById('save-status').textContent = translations[lang].saveStatus;
         }
     </script>
 </body>
