@@ -159,18 +159,45 @@
         <div id="footer-right">100,000+ Row Canvas2D Grid</div>
     </footer>
 
-    <!-- UniverJS Scripts -->
+    <!-- 1. External Base Libraries (React, RxJS, redi, clsx, dayjs) -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@7.8.1/dist/bundles/rxjs.umd.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@wendellhu/redi@0.2.1/dist/redi.js"></script>
+    <script>window.redi = window['@wendellhu/redi'];</script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@wendellhu/redi@0.2.1/dist/react-bindings.js"></script>
+    <script>window['@wendellhu/redi/react-bindings'] = window['react-bindings'];</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/clsx@2.1.0/dist/clsx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+
+    <!-- 2. UniverJS Core & Design Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/core@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/design@0.2.0/lib/umd/index.js"></script>
+    
+    <!-- 3. UniverJS Engines & UI Shells -->
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-render@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/engine-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/ui@0.2.0/lib/umd/index.js"></script>
+    
+    <!-- 4. UniverJS Document Subsystem -->
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/docs-ui@0.2.0/lib/umd/index.js"></script>
+    <script>window.UniverDocsUI = window.UniverDocsUi;</script>
+
+    <!-- 5. UniverJS Spreadsheet Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-ui@0.2.0/lib/umd/index.js"></script>
+    <script>window.UniverSheetsUI = window.UniverSheetsUi;</script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-formula@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-numfmt@0.2.0/lib/umd/index.js"></script>
+    
+    <!-- 6. Find-Replace & Conditional Formatting Submodules -->
+    <script src="https://cdn.jsdelivr.net/npm/@univerjs/find-replace@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-find-replace@0.2.0/lib/umd/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/umd/index.js"></script>
 
@@ -185,13 +212,16 @@
         }
 
         // Configure default theme and override colors to match accent green
-        const defaultTheme = UniverDesign.themes.dark;
-        defaultTheme.green500 = '#0DA471';
-        defaultTheme.primaryColor = '#0DA471';
-        defaultTheme.bgNormalColor = '#1B1C1F';
-        defaultTheme.bgBodyColor = '#1B1C1F';
+        const darkTheme = (UniverDesign && UniverDesign.themes && UniverDesign.themes.dark) ? UniverDesign.themes.dark : {};
+        const defaultTheme = {
+            ...darkTheme,
+            green500: '#0DA471',
+            primaryColor: '#0DA471',
+            bgNormalColor: '#1B1C1F',
+            bgBodyColor: '#1B1C1F'
+        };
 
-        // 1. Initialize UniverJS core engine
+        // Initialize UniverJS core engine
         const univer = new UniverCore.Univer({
             theme: defaultTheme,
             darkMode: true
@@ -206,9 +236,9 @@
             sidebar: false,
         });
         univer.registerPlugin(UniverDocs.UniverDocsPlugin);
-        univer.registerPlugin(UniverDocsUI.UniverDocsUIPlugin);
+        univer.registerPlugin(UniverDocsUi.UniverDocsUiPlugin);
         univer.registerPlugin(UniverSheets.UniverSheetsPlugin);
-        univer.registerPlugin(UniverSheetsUI.UniverSheetsUIPlugin);
+        univer.registerPlugin(UniverSheetsUi.UniverSheetsUiPlugin);
         univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
         univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
         univer.registerPlugin(UniverSheetsFindReplace.UniverSheetsFindReplacePlugin);
@@ -364,7 +394,7 @@
             }
         }
 
-        // 2. SQL OLAP Query Execution using DuckDB over SQLite
+        // SQL OLAP Query Execution using DuckDB over SQLite
         async function runSqlOlap() {
             const query = document.getElementById('sql-query-val').value.trim();
             const modal = document.getElementById('olap-modal');
