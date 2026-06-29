@@ -19,7 +19,6 @@ namespace LogisticsZero {
             _formattedGiaiTag = $"(8004){cleanTag}";
 
             using (var pd = new PrintDocument()) {
-                // If a specific printer name is provided (e.g. Zebra ZT411), target it directly
                 if (!string.IsNullOrEmpty(printerName)) {
                     pd.PrinterSettings.PrinterName = printerName;
                 }
@@ -39,15 +38,14 @@ namespace LogisticsZero {
             using (var tagFont = new Font("Consolas", 14, FontStyle.Bold))
             using (var brush = new SolidBrush(Color.Black))
             using (var pen = new Pen(Color.Black, 2)) {
-                // Position variables for label layout
                 float x = 20;
                 float y = 20;
 
                 // 1. Draw outer label border
                 ev.Graphics.DrawRectangle(pen, 10, 10, 300, 100);
 
-                // 2. Draw GS1 headers
-                ev.Graphics.DrawString("KSAU-HS SOVEREIGN ASSET INVENTORY", headerFont, brush, x, y);
+                // 2. Draw generic headers
+                ev.Graphics.DrawString("SOVEREIGN ASSET INVENTORY", headerFont, brush, x, y);
                 ev.Graphics.DrawString("GIAI IDENTIFIER:", headerFont, brush, x, y + 20);
 
                 // 3. Draw the formatted GIAI Tag (e.g. (8004)123456)

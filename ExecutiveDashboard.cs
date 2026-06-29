@@ -18,12 +18,11 @@ namespace LogisticsZero {
         }
 
         // Runs DuckDB aggregate query over SQLite
-        public string RunOlapQuery(string department) {
+        public string RunOlapQuery(string sqlQuery) {
             try {
-                var (totalCost, avgDepreciation, executionTimeMs) = _pivotEngine.AggregateByDepartment(department);
-                return $"{totalCost:F2}|{avgDepreciation * 100:F2}|{executionTimeMs:F3}";
+                return _pivotEngine.ExecuteOlapQuery(sqlQuery);
             } catch (Exception ex) {
-                return $"Error: {ex.Message}";
+                return $"{{\"error\": \"Bridge Error: {ex.Message}\"}}";
             }
         }
 
@@ -79,7 +78,7 @@ namespace LogisticsZero {
             this.ClientSize = new System.Drawing.Size(1280, 800);
             this.Controls.Add(this.webView);
             this.Name = "ExecutiveDashboard";
-            this.Text = "Logistics-Zero Sovereign Executive Dashboard";
+            this.Text = "SovereignGrid Executive Dashboard";
             ((System.ComponentModel.ISupportInitialize)(this.webView)).EndInit();
             this.ResumeLayout(false);
         }

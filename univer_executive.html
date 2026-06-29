@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistics-Zero UniverJS Executive Dashboard (Zenith Edition)</title>
+    <title>SovereignGrid • Open Source Local Spreadsheet</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- UniverJS Stylesheets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@univerjs/design@0.2.0/lib/index.css">
@@ -38,7 +38,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             height: 100vh;
@@ -50,7 +50,7 @@
         header {
             background-color: var(--panel-color);
             border-bottom: 1px solid var(--border-color);
-            height: 50px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -61,159 +61,87 @@
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .seal-badge {
-            background: linear-gradient(135deg, var(--warning-color), #ff8800);
-            color: #000;
-            font-weight: 700;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .title {
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .status-indicators {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .dot {
+        .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background-color: var(--accent-color);
             box-shadow: 0 0 8px var(--accent-color);
-            animation: pulse 1.5s infinite alternate;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.6; }
-            100% { transform: scale(1.3); opacity: 1; }
+        .title {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .workspace {
-            flex: 1;
+        .actions-bar {
             display: flex;
-            min-height: 0;
-        }
-
-        /* Left control panel sidebar */
-        .sidebar {
-            width: 290px;
-            background-color: var(--panel-color);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 20px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        body[dir="rtl"] .sidebar {
-            border-right: none;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .sidebar-section {
-            display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 10px;
         }
 
-        .sidebar-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        select, input {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-size: 13px;
-            outline: none;
-        }
-
-        select:focus, input:focus {
-            border-color: var(--accent-color);
-        }
-
         .btn {
-            background-color: var(--bg-color);
+            background-color: #25272d;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 10px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
-            font-weight: 600;
-            font-size: 13px;
+            font-weight: 500;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn:hover {
             border-color: var(--accent-color);
-            background-color: rgba(13, 164, 119, 0.05);
+            background-color: rgba(13, 164, 119, 0.08);
             color: var(--accent-color);
         }
 
-        .btn-primary {
+        .btn-accent {
             background: linear-gradient(135deg, var(--accent-color), #097d56);
-            color: #e3e4e6;
             border: none;
         }
 
-        .btn-primary:hover {
+        .btn-accent:hover {
             background: linear-gradient(135deg, #10cf8e, var(--accent-color));
-            box-shadow: 0 0 15px rgba(13, 164, 113, 0.35);
+            box-shadow: 0 0 10px rgba(13, 164, 113, 0.25);
+            color: #fff;
         }
 
-        /* UniverJS Container */
-        .main-content {
+        .sql-input-group {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2px 6px;
+            margin-right: 8px;
+        }
+
+        .sql-input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            width: 280px;
+            outline: none;
+            padding: 4px;
+        }
+
+        /* Full screen UniverJS Container */
+        .workspace {
             flex: 1;
             display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background-color: var(--bg-color);
+            min-height: 0;
             position: relative;
         }
 
@@ -222,15 +150,43 @@
             height: 100%;
         }
 
-        /* Sovereign dark-theme adjustments for Univer elements */
-        .univer-workbench {
-            background-color: var(--panel-color) !important;
-            border-color: var(--border-color) !important;
+        /* Overlay modal for SQL results */
+        #olap-modal {
+            display: none;
+            position: absolute;
+            bottom: 35px;
+            right: 20px;
+            width: 480px;
+            max-height: 280px;
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* Footer */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #16171a;
+        }
+
+        .modal-body {
+            padding: 12px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #b5b7c0;
+            flex: 1;
+        }
+
         footer {
-            height: 30px;
+            height: 28px;
             background-color: var(--panel-color);
             border-top: 1px solid var(--border-color);
             display: flex;
@@ -242,162 +198,57 @@
             color: var(--text-muted);
             z-index: 10;
         }
-
-        /* Switch toggles styling */
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 22px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #3e4049;
-            transition: .3s;
-            border-radius: 22px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--accent-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header id="header-container">
+    <!-- Header Navbar -->
+    <header>
         <div class="logo-section">
-            <span class="seal-badge" id="badge-text">Official KSAU-HS Portal</span>
-            <span class="title" id="title-text">Logistics-Zero Sovereign Executive Dashboard</span>
+            <div class="status-dot"></div>
+            <span class="title" id="title-text">SovereignGrid</span>
+            <span style="font-size: 10px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 1px 6px; border-radius: 10px;" id="badge-mode">LOCAL ENCLAVE</span>
         </div>
-        <div class="status-indicators">
-            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="toggleLanguage()" id="lang-btn">عربي</button>
-            <div class="indicator">
-                <div class="dot"></div>
-                <span id="olap-indicator">OLAP: Online</span>
+
+        <div class="actions-bar">
+            <!-- DuckDB SQL OLAP Input -->
+            <div class="sql-input-group">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-color); font-weight: bold; padding-left: 4px;">SQL></span>
+                <input type="text" id="sql-query-val" class="sql-input" value="SELECT category, SUM(price) FROM inventory_items GROUP BY category" />
+                <button class="btn" style="padding: 2px 8px; border: none; background: transparent; color: var(--accent-color);" onclick="runSqlOlap()" id="sql-run-btn">Run Query</button>
             </div>
-            <div class="indicator">
-                <span id="evaluation-latency" style="color: var(--accent-color)">Puncalc: 0.00ms</span>
-            </div>
+
+            <button class="btn btn-accent" onclick="triggerRecalculate()" id="btn-recalc">Run C++20 Atomics</button>
+            <button class="btn" onclick="directPrint()" id="btn-print">Print GIAI Tag</button>
+            
+            <div style="width: 1px; height: 16px; background-color: var(--border-color); margin: 0 4px;"></div>
+            
+            <button class="btn" onclick="exportData('csv')">CSV</button>
+            <button class="btn" onclick="exportData('json')">JSON</button>
+            <button class="btn" onclick="toggleLanguage()" id="btn-lang" style="padding: 6px 10px;">عربي</button>
         </div>
     </header>
 
-    <!-- Workspace -->
+    <!-- Workspace Sheet -->
     <div class="workspace">
-        <!-- Sidebar Controls -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title" id="ops-title">Clinical Operations</div>
-                <button class="btn btn-primary" onclick="triggerNativeRecalculate()" id="btn-recalc">
-                    <span>Run Puncalc Engine</span>
-                </button>
-                <button class="btn" onclick="directPrintGiai()" id="btn-print">
-                    <span>Print GIAI Asset Tag</span>
-                </button>
-            </div>
+        <div id="univer-container"></div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-title" id="batch-title">Batch Rendering Mode</div>
-                <div class="toggle-container">
-                    <span id="batch-label" style="font-size: 12px;">Suppress UI Updates</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="batch-toggle" onchange="toggleBatchMode()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+        <!-- SQL OLAP modal popup -->
+        <div id="olap-modal">
+            <div class="modal-header">
+                <span style="font-size: 11px; font-weight: 600; color: var(--accent-color);" id="modal-title">DuckDB Columnar Query Results</span>
+                <button onclick="closeModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;">&times;</button>
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title" id="olap-title">DuckDB Columnar Aggregations</div>
-                <div class="control-group">
-                    <label for="dept-dropdown" id="dept-label">Select Department</label>
-                    <select id="dept-dropdown" onchange="runDuckDbOlap()">
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Radiology">Radiology</option>
-                        <option value="Surgery">Surgery</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="runDuckDbOlap()" id="btn-olap">
-                    <span>Run OLAP Pivot Query</span>
-                </button>
-                
-                <div id="olap-output" style="margin-top: 10px; font-size: 12px; font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
-                    <div>Cost: --</div>
-                    <div>Deprec.: --</div>
-                    <div>Latency: --</div>
-                </div>
+            <div class="modal-body" id="modal-body-content">
+                No query executed.
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title" id="export-title">Local Export & Storage</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="btn" onclick="exportData('json')">JSON</button>
-                    <button class="btn" onclick="exportData('csv')">CSV</button>
-                </div>
-                <div style="font-size: 10px; color: var(--text-muted); text-align: center;" id="autosave-status">Auto-save: Active</div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title" id="giai-title">GIAI Validator</div>
-                <div class="control-group">
-                    <label for="barcode-val" id="barcode-label">Barcode Value</label>
-                    <input type="text" id="barcode-val" value="(8004)120239401" oninput="runValidateGiai()" />
-                </div>
-                <div id="giai-validation-status" style="font-size: 12px; font-weight: 600; color: var(--accent-color);">
-                    Valid GIAI Barcode
-                </div>
-            </div>
-        </div>
-
-        <!-- Sheet Grid -->
-        <div class="main-content">
-            <div id="univer-container"></div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer>
-        <div id="footer-left">Sovereign clinical mode | Air-Gapped / Zero-Telemetry</div>
+        <div id="footer-left">SovereignGrid • Open-Source Offline Engine</div>
+        <div id="evaluation-latency" style="color: var(--accent-color)">Puncalc Atomics: 0.00ms</div>
         <div id="footer-right">100,000+ Row Canvas2D Grid</div>
     </footer>
 
@@ -417,35 +268,34 @@
     <script src="https://cdn.jsdelivr.net/npm/@univerjs/sheets-conditional-formatting@0.2.0/lib/umd/index.js"></script>
 
     <script>
-        // Check if hosted within C# WebView2, setup bridge fallback mock
         let bridge;
         try {
             if (window.chrome && window.chrome.webview && window.chrome.webview.hostObjects) {
                 bridge = window.chrome.webview.hostObjects.bridge;
             }
         } catch (e) {
-            console.warn("WebView2 Host Object Bridge not available.", e);
+            console.warn("WebView2 Host Object Bridge not available. Emulating offline.", e);
         }
 
-        // Configure default theme and override colors to match KSAU-HS Green branding
+        // Configure default theme and override colors to match accent green
         const defaultTheme = UniverDesign.themes.dark;
         defaultTheme.green500 = '#0DA471';
         defaultTheme.primaryColor = '#0DA471';
         defaultTheme.bgNormalColor = '#1B1C1F';
         defaultTheme.bgBodyColor = '#1B1C1F';
 
-        // 1. Initialize UniverJS core engine with dark mode settings
+        // 1. Initialize UniverJS core engine
         const univer = new UniverCore.Univer({
             theme: defaultTheme,
             darkMode: true
         });
 
-        // Register the full ecosystem of Univer plugins
+        // Register core & UI plugins
         univer.registerPlugin(UniverRender.UniverRenderEnginePlugin);
         univer.registerPlugin(UniverUI.UniverUIPlugin, {
             container: 'univer-container',
             header: true,
-            footer: false,
+            footer: true,
             sidebar: false,
         });
         univer.registerPlugin(UniverDocs.UniverDocsPlugin);
@@ -460,39 +310,35 @@
         // Load cached spreadsheet data from localStorage if exists
         let loadedCellData = null;
         try {
-            const cached = localStorage.getItem('logistics_zero_ast');
-            if (cached) {
-                loadedCellData = JSON.parse(cached);
-            }
-        } catch (err) {
-            console.warn("Failed to load cached sheet AST", err);
-        }
+            const cached = localStorage.getItem('sovereign_grid_cells');
+            if (cached) loadedCellData = JSON.parse(cached);
+        } catch (err) {}
 
         const defaultCellData = {
             '0': {
-                '0': { v: 'A1: Raw Cost Values' },
-                '1': { v: 'B1: Formula SUM' },
-                '2': { v: 'C1: Nested IF Smells' }
+                '0': { v: 'Column A (Raw Values)' },
+                '1': { v: 'Column B (Calculations)' },
+                '2': { v: 'Column C (Conditionals)' }
             },
             '1': {
-                '0': { v: 120 },
+                '0': { v: 1500 },
                 '1': { v: '=SUM(A2:A5)' },
-                '2': { v: '=IFS(A2>10, 100, A2>5, 50, true, 0)' }
+                '2': { v: '=IFS(A2>2000, "High", A2>1000, "Medium", true, "Low")' }
             },
-            '2': { '0': { v: 250 } },
-            '3': { '0': { v: 340 } },
-            '4': { '0': { v: 480 } }
+            '2': { '0': { v: 2200 } },
+            '3': { '0': { v: 950 } },
+            '4': { '0': { v: 1300 } }
         };
 
         // Create workbook instance
         const workbook = univer.createUniverSheet({
-            id: 'logistics_zero_sheet',
-            name: 'Asset Inventory',
+            id: 'sovereign_workbook',
+            name: 'Sheet1',
             sheetOrder: ['sheet1'],
             sheets: {
                 sheet1: {
                     id: 'sheet1',
-                    name: 'KSAU-HS Financial Assets',
+                    name: 'Grid Data',
                     rowCount: 100000,
                     columnCount: 26,
                     cellData: loadedCellData || defaultCellData
@@ -500,100 +346,118 @@
             }
         });
 
-        // 2. Bilingual RTL/LTR switching system
-        let isArabic = false;
-        const translations = {
-            en: {
-                badge: "Official KSAU-HS Portal",
-                title: "Logistics-Zero Sovereign Executive Dashboard",
-                ops: "Clinical Operations",
-                recalc: "Run Puncalc Engine",
-                print: "Print GIAI Asset Tag",
-                batchTitle: "Batch Rendering Mode",
-                batchLabel: "Suppress UI Updates",
-                olapTitle: "DuckDB Columnar Aggregations",
-                deptLabel: "Select Department",
-                olapBtn: "Run OLAP Pivot Query",
-                exportTitle: "Local Export & Storage",
-                giaiTitle: "GIAI Validator",
-                barcodeLabel: "Barcode Value",
-                footerLeft: "Sovereign clinical mode | Air-Gapped / Zero-Telemetry",
-                footerRight: "100,000+ Row Canvas2D Grid",
-                langBtn: "عربي"
-            },
-            ar: {
-                badge: "بوابة جامعة الملك سعود للعلوم الصحية الرسمية",
-                title: "لوحة التحكم التنفيذية المستقلة لـ Logistics-Zero",
-                ops: "العمليات السريرية",
-                recalc: "تشغيل محرك الحساب Puncalc",
-                print: "طباعة ملصق أصول GIAI",
-                batchTitle: "وضع المعالجة الدفعية للواجهة",
-                batchLabel: "تعطيل تحديثات الواجهة",
-                olapTitle: "تجميع البيانات عبر DuckDB",
-                deptLabel: "اختر القسم الطبي",
-                olapBtn: "تشغيل استعلام OLAP",
-                exportTitle: "التصدير والتخزين المحلي",
-                giaiTitle: "التحقق من كود GIAI",
-                barcodeLabel: "قيمة الباركود",
-                footerLeft: "الوضع السريري السيادي | معزول بالكامل / بدون تتبع",
-                footerRight: "شبكة رسومية Canvas2D بأكثر من 100,000 صف",
-                langBtn: "English"
-            }
-        };
-
-        function toggleLanguage() {
-            isArabic = !isArabic;
-            const lang = isArabic ? 'ar' : 'en';
-            document.body.dir = isArabic ? 'rtl' : 'ltr';
-            
-            document.getElementById('badge-text').textContent = translations[lang].badge;
-            document.getElementById('title-text').textContent = translations[lang].title;
-            document.getElementById('ops-title').textContent = translations[lang].ops;
-            document.getElementById('btn-recalc').querySelector('span').textContent = translations[lang].recalc;
-            document.getElementById('btn-print').querySelector('span').textContent = translations[lang].print;
-            document.getElementById('batch-title').textContent = translations[lang].batchTitle;
-            document.getElementById('batch-label').textContent = translations[lang].batchLabel;
-            document.getElementById('olap-title').textContent = translations[lang].olapTitle;
-            document.getElementById('dept-label').textContent = translations[lang].deptLabel;
-            document.getElementById('btn-olap').querySelector('span').textContent = translations[lang].olapBtn;
-            document.getElementById('export-title').textContent = translations[lang].exportTitle;
-            document.getElementById('giai-title').textContent = translations[lang].giaiTitle;
-            document.getElementById('barcode-label').textContent = translations[lang].barcodeLabel;
-            document.getElementById('footer-left').textContent = translations[lang].footerLeft;
-            document.getElementById('footer-right').textContent = translations[lang].footerRight;
-            document.getElementById('lang-btn').textContent = translations[lang].langBtn;
-        }
-
-        // 3. Batch paste & render suspension mode toggle
-        let isBatchModeActive = false;
-        function toggleBatchMode() {
-            isBatchModeActive = document.getElementById('batch-toggle').checked;
-            const container = document.getElementById('univer-container');
-            if (isBatchModeActive) {
-                // Freezes the Univer rendering interface
-                container.style.pointerEvents = 'none';
-                container.style.opacity = '0.5';
-                console.log("Batch Mode Activated. UI reconciliation suspended.");
-            } else {
-                container.style.pointerEvents = 'auto';
-                container.style.opacity = '1';
-                console.log("Batch Mode Deactivated. UI refreshed.");
-            }
-        }
-
-        // 4. Air-Gapped Auto-save & Local Export (Zero-Telemetry)
+        // Auto-save logic (Local Storage)
         setInterval(() => {
             try {
                 const snapshot = workbook.save();
                 if (snapshot && snapshot.sheets && snapshot.sheets.sheet1 && snapshot.sheets.sheet1.cellData) {
-                    localStorage.setItem('logistics_zero_ast', JSON.stringify(snapshot.sheets.sheet1.cellData));
-                    document.getElementById('autosave-status').textContent = `Auto-save: Saved (${new Date().toLocaleTimeString()})`;
+                    localStorage.setItem('sovereign_grid_cells', JSON.stringify(snapshot.sheets.sheet1.cellData));
                 }
-            } catch (err) {
-                console.warn("Auto-save failed", err);
-            }
-        }, 30000);
+            } catch (err) {}
+        }, 15000);
 
+        // 2. SQL OLAP Query Execution using DuckDB over SQLite
+        async function runSqlOlap() {
+            const query = document.getElementById('sql-query-val').value.trim();
+            const modal = document.getElementById('olap-modal');
+            const modalBody = document.getElementById('modal-body-content');
+            
+            modal.style.display = 'flex';
+            modalBody.innerHTML = 'Executing SQL pivot query...';
+
+            if (bridge) {
+                try {
+                    const rawRes = await bridge.RunOlapQuery(query);
+                    const parts = rawRes.split('|');
+                    const latency = parts[0];
+                    const data = JSON.parse(parts[1]);
+
+                    if (data.error) {
+                        modalBody.innerHTML = `<span style="color:var(--danger-color)">Error: ${data.error}</span>`;
+                        return;
+                    }
+
+                    // Build simple HTML table to display JSON results
+                    let html = `<div style="color:var(--accent-color); font-weight:bold; margin-bottom:8px;">Query speed: ${latency} ms</div>`;
+                    html += `<table style="width:100%; border-collapse:collapse; text-align:left;">`;
+                    
+                    if (data.length > 0) {
+                        const headers = Object.keys(data[0]);
+                        html += `<tr style="border-bottom:1px solid var(--border-color); color:#fff;">`;
+                        headers.forEach(h => html += `<th style="padding:4px;">${h}</th>`);
+                        html += `</tr>`;
+                        
+                        data.forEach(row => {
+                            html += `<tr style="border-bottom:1px solid #23252a;">`;
+                            headers.forEach(h => html += `<td style="padding:4px;">${row[h]}</td>`);
+                            html += `</tr>`;
+                        });
+                    } else {
+                        html += `<tr><td>Empty result set.</td></tr>`;
+                    }
+                    html += `</table>`;
+                    modalBody.innerHTML = html;
+
+                } catch (err) {
+                    modalBody.innerHTML = `<span style="color:var(--danger-color)">Bridge failure: ${err.message}</span>`;
+                }
+            } else {
+                // Emulation when browsing on GitHub Pages
+                setTimeout(() => {
+                    modalBody.innerHTML = `
+                        <div style="color:var(--accent-color); font-weight:bold; margin-bottom:8px;">Query speed: 0.043 ms (Mock)</div>
+                        <table style="width:100%; border-collapse:collapse; text-align:left;">
+                            <tr style="border-bottom:1px solid var(--border-color); color:#fff;">
+                                <th style="padding:4px;">category</th>
+                                <th style="padding:4px;">sum(price)</th>
+                            </tr>
+                            <tr style="border-bottom:1px solid #23252a;">
+                                <td style="padding:4px;">Hardware</td>
+                                <td style="padding:4px;">5,230.50</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #23252a;">
+                                <td style="padding:4px;">Electronics</td>
+                                <td style="padding:4px;">12,940.00</td>
+                            </tr>
+                        </table>
+                    `;
+                }, 150);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('olap-modal').style.display = 'none';
+        }
+
+        // C++ Math Engine Reevaluation
+        async function triggerRecalculate() {
+            const t0 = performance.now();
+            if (bridge) {
+                try {
+                    await bridge.RecalculateSheet(100, 20, 4);
+                } catch (e) {}
+            }
+            const latency = (performance.now() - t0).toFixed(2);
+            document.getElementById('evaluation-latency').textContent = `Puncalc Atomics: ${latency}ms`;
+        }
+
+        // Direct Zebra Tag Printer
+        async function directPrint() {
+            const val = prompt("Enter tag/barcode number to print via Zebra:", "(8004)109283749");
+            if (!val) return;
+            if (bridge) {
+                try {
+                    const res = await bridge.PrintGiai(val, "");
+                    alert(`Label Printed successfully: ${res}`);
+                } catch (e) {
+                    alert(`Print error: ${e.message}`);
+                }
+            } else {
+                alert(`[Offline Mock] Printed tag: ${val}`);
+            }
+        }
+
+        // Export data
         function exportData(format) {
             try {
                 const snapshot = workbook.save();
@@ -608,7 +472,6 @@
                     mime = "application/json";
                     extension = "json";
                 } else if (format === 'csv') {
-                    // Extract basic row/col matrix
                     let csvRows = [];
                     for (let r = 0; r < 20; r++) {
                         let row = [];
@@ -627,7 +490,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `logistics_zero_export_${Date.now()}.${extension}`;
+                a.download = `sovereign_grid_export_${Date.now()}.${extension}`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -637,92 +500,42 @@
             }
         }
 
-        // 5. Clinical bridge execution methods
-        async function runDuckDbOlap() {
-            const dept = document.getElementById('dept-dropdown').value;
-            const output = document.getElementById('olap-output');
-            output.innerHTML = '<div>Querying DuckDB OLAP...</div>';
-
-            if (bridge) {
-                try {
-                    const res = await bridge.RunOlapQuery(dept);
-                    const parts = res.split('|');
-                    output.innerHTML = `
-                        <div style="color: var(--accent-color); font-weight: bold;">DuckDB Output:</div>
-                        <div>Cost: $${parseFloat(parts[0]).toLocaleString()}</div>
-                        <div>Avg Deprec: ${parts[1]}%</div>
-                        <div>Latency: ${parts[2]} ms</div>
-                    `;
-                } catch (e) {
-                    output.innerHTML = `<div style="color:var(--danger-color)">Bridge Err: ${e.message}</div>`;
-                }
-            } else {
-                // Mock behavior when previewing live on GitHub Pages
-                setTimeout(() => {
-                    const cost = (150000 + Math.random() * 850000).toFixed(2);
-                    const depr = (5 + Math.random() * 15).toFixed(2);
-                    const latency = (0.01 + Math.random() * 0.05).toFixed(3);
-                    output.innerHTML = `
-                        <div style="color: var(--accent-color); font-weight: bold;">DuckDB Emulated:</div>
-                        <div>Cost: $${parseFloat(cost).toLocaleString()}</div>
-                        <div>Avg Deprec: ${depr}%</div>
-                        <div>Latency: ${latency} ms</div>
-                    `;
-                }, 100);
+        // Bilingual Mode
+        let isArabic = false;
+        const translations = {
+            en: {
+                title: "SovereignGrid",
+                badge: "LOCAL ENCLAVE",
+                recalc: "Run C++20 Atomics",
+                print: "Print GIAI Tag",
+                runBtn: "Run Query",
+                footerLeft: "SovereignGrid • Open-Source Offline Engine",
+                langBtn: "عربي"
+            },
+            ar: {
+                title: "الشبكة المستقلة",
+                badge: "منطقة معزولة محلياً",
+                recalc: "تشغيل محرك C++20",
+                print: "طباعة ملصق GIAI",
+                runBtn: "نفّذ الاستعلام",
+                footerLeft: "SovereignGrid • محرك محلي مفتوح المصدر",
+                langBtn: "English"
             }
-        }
-
-        async function directPrintGiai() {
-            const barcodeVal = document.getElementById('barcode-val').value;
-            if (bridge) {
-                try {
-                    const res = await bridge.PrintGiai(barcodeVal, "");
-                    alert(`Native Printing Triggered: ${res}`);
-                } catch (e) {
-                    alert(`Bridge printing failed: ${e.message}`);
-                }
-            } else {
-                alert(`[Direct Print Mock] GS1 GIAI Tag: ${barcodeVal} printed directly to Zebra ZT411 printer.`);
-            }
-        }
-
-        async function triggerNativeRecalculate() {
-            const t0 = performance.now();
-            if (bridge) {
-                try {
-                    // Send workbook dimensions for recalculation in C++20 engine
-                    await bridge.RecalculateSheet(100, 20, 4);
-                } catch (e) {
-                    console.error("Native reeval failed, falling back to local formulas", e);
-                }
-            }
-            const latency = (performance.now() - t0).toFixed(2);
-            document.getElementById('evaluation-latency').textContent = `Puncalc: ${latency}ms`;
-        }
-
-        function runValidateGiai() {
-            const input = document.getElementById('barcode-val').value.trim();
-            const status = document.getElementById('giai-validation-status');
-
-            const cleanVal = input.replace(/^\(8004\)/, '8004');
-            if (!cleanVal.startsWith('8004')) {
-                status.textContent = 'Invalid AI. Must be 8004.';
-                status.style.color = 'var(--danger-color)';
-                return;
-            }
-            if (cleanVal.length > 34) {
-                status.textContent = 'GIAI exceeds maximum length.';
-                status.style.color = 'var(--danger-color)';
-                return;
-            }
-            status.textContent = 'Valid GS1 GIAI Structure';
-            status.style.color = 'var(--accent-color)';
-        }
-
-        window.onload = () => {
-            runDuckDbOlap();
-            runValidateGiai();
         };
+
+        function toggleLanguage() {
+            isArabic = !isArabic;
+            const lang = isArabic ? 'ar' : 'en';
+            document.body.dir = isArabic ? 'rtl' : 'ltr';
+            
+            document.getElementById('title-text').textContent = translations[lang].title;
+            document.getElementById('badge-mode').textContent = translations[lang].badge;
+            document.getElementById('btn-recalc').textContent = translations[lang].recalc;
+            document.getElementById('btn-print').textContent = translations[lang].print;
+            document.getElementById('sql-run-btn').textContent = translations[lang].runBtn;
+            document.getElementById('footer-left').textContent = translations[lang].footerLeft;
+            document.getElementById('btn-lang').textContent = translations[lang].langBtn;
+        }
     </script>
 </body>
 </html>

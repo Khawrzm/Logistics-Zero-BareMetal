@@ -4,6 +4,7 @@ using System.IO;
 using System.Data;
 using Microsoft.Data.Sqlite;
 using DuckDB.NET.Data;
+using System.Text;
 
 namespace LogisticsZero {
     public class PivotEngine {
@@ -20,14 +21,14 @@ namespace LogisticsZero {
                     cmd.ExecuteNonQuery();
                 }
 
-                // Initialize KSAU-HS clinical inventory scheme
+                // Initialize a generic inventory schema
                 using (var cmd = conn.CreateCommand()) {
                     cmd.CommandText = @"
-                        CREATE TABLE IF NOT EXISTS financial_assets (
+                        CREATE TABLE IF NOT EXISTS inventory_items (
                             id INTEGER PRIMARY KEY,
-                            department TEXT,
-                            equipment TEXT,
-                            cost REAL,
+                            category TEXT,
+                            name TEXT,
+                            price REAL,
                             depreciation_rate REAL
                         );";
                     cmd.ExecuteNonQuery();
@@ -36,7 +37,7 @@ namespace LogisticsZero {
                 // Check and seed 10,000 mock rows if database is empty
                 long count = 0;
                 using (var cmd = conn.CreateCommand()) {
-                    cmd.CommandText = "SELECT COUNT(*) FROM financial_assets;";
+                    cmd.CommandText = "SELECT COUNT(*) FROM inventory_items;";
                     count = (long)cmd.ExecuteScalar();
                 }
 
@@ -47,36 +48,36 @@ namespace LogisticsZero {
         }
 
         private void SeedMockData(SqliteConnection conn) {
-            string[] departments = { "Cardiology", "Neurology", "Radiology", "Surgery", "Pediatrics" };
-            string[] equipment = { "MRI Scanner", "X-Ray Machine", "Ultrasound", "CT Scanner", "Defibrillator" };
+            string[] categories = { "Hardware", "Furniture", "Electronics", "Office Supplies", "Networking" };
+            string[] items = { "Laptop", "Desk Chair", "Monitor", "Paper Shredder", "Router" };
             Random rand = new Random(42);
 
             using (var transaction = conn.BeginTransaction()) {
                 using (var cmd = conn.CreateCommand()) {
                     cmd.CommandText = @"
-                        INSERT INTO financial_assets (department, equipment, cost, depreciation_rate)
-                        VALUES ($dept, $equip, $cost, $rate);";
+                        INSERT INTO inventory_items (category, name, price, depreciation_rate)
+                        VALUES ($cat, $name, $price, $rate);";
                     
-                    var deptParam = cmd.CreateParameter();
-                    deptParam.ParameterName = "$dept";
-                    cmd.Parameters.Add(deptParam);
+                    var catParam = cmd.CreateParameter();
+                    catParam.ParameterName = "$cat";
+                    cmd.Parameters.Add(catParam);
 
-                    var equipParam = cmd.CreateParameter();
-                    equipParam.ParameterName = "$equip";
-                    cmd.Parameters.Add(equipParam);
+                    var nameParam = cmd.CreateParameter();
+                    nameParam.ParameterName = "$name";
+                    cmd.Parameters.Add(nameParam);
 
-                    var costParam = cmd.CreateParameter();
-                    costParam.ParameterName = "$cost";
-                    cmd.Parameters.Add(costParam);
+                    var priceParam = cmd.CreateParameter();
+                    priceParam.ParameterName = "$price";
+                    cmd.Parameters.Add(priceParam);
 
                     var rateParam = cmd.CreateParameter();
                     rateParam.ParameterName = "$rate";
                     cmd.Parameters.Add(rateParam);
 
                     for (int i = 0; i < 10000; i++) {
-                        deptParam.Value = departments[rand.Next(departments.Length)];
-                        equipParam.Value = equipment[rand.Next(equipment.Length)];
-                        costParam.Value = 5000.0 + rand.NextDouble() * 950000.0;
+                        catParam.Value = categories[rand.Next(categories.Length)];
+                        nameParam.Value = items[rand.Next(items.Length)];
+                        priceParam.Value = 100.0 + rand.NextDouble() * 5000.0;
                         rateParam.Value = 0.05 + rand.NextDouble() * 0.15;
                         cmd.ExecuteNonQuery();
                     }
@@ -85,39 +86,62 @@ namespace LogisticsZero {
             }
         }
 
-        public (double totalCost, double avgDepreciation, double executionTimeMs) AggregateByDepartment(string department) {
+        // Runs any arbitrary SQL query via DuckDB over the SQLite database file
+        public string ExecuteOlapQuery(string sqlQuery) {
             var stopwatch = Stopwatch.StartNew();
-            double totalCost = 0.0;
-            double avgDepreciation = 0.0;
+            var jsonResult = new StringBuilder();
 
-            // Connects DuckDB in-memory database and loads SQLite file via sqlite_scan
-            using (var duckConn = new DuckDBConnection("Data Source=:memory:")) {
-                duckConn.Open();
-                
-                using (var cmd = duckConn.CreateCommand()) {
-                    cmd.CommandText = "INSTALL sqlite; LOAD sqlite;";
-                    cmd.ExecuteNonQuery();
-
-                    cmd.CommandText = $@"
-                        SELECT SUM(cost), AVG(depreciation_rate)
-                        FROM sqlite_scan('{SqliteDbPath}', 'financial_assets')
-                        WHERE department = ?;";
+            try {
+                using (var duckConn = new DuckDBConnection("Data Source=:memory:")) {
+                    duckConn.Open();
                     
-                    var param = cmd.CreateParameter();
-                    param.Value = department;
-                    cmd.Parameters.Add(param);
+                    using (var cmd = duckConn.CreateCommand()) {
+                        cmd.CommandText = "INSTALL sqlite; LOAD sqlite;";
+                        cmd.ExecuteNonQuery();
 
-                    using (var reader = cmd.ExecuteReader()) {
-                        if (reader.Read()) {
-                            totalCost = reader.IsDBNull(0) ? 0.0 : reader.GetDouble(0);
-                            avgDepreciation = reader.IsDBNull(1) ? 0.0 : reader.GetDouble(1);
+                        // Rewrite the query if it targets the local table to wrap it inside sqlite_scan
+                        string secureQuery = sqlQuery.Replace("inventory_items", $"sqlite_scan('{SqliteDbPath}', 'inventory_items')");
+                        cmd.CommandText = secureQuery;
+
+                        using (var reader = cmd.ExecuteReader()) {
+                            var dt = new DataTable();
+                            dt.Load(reader);
+
+                            // Convert DataTable to simple JSON array
+                            jsonResult.Append("[");
+                            for (int i = 0; i < dt.Rows.Count; i++) {
+                                jsonResult.Append("{");
+                                for (int j = 0; j < dt.Columns.Count; j++) {
+                                    string colName = dt.Columns[j].ColumnName;
+                                    object val = dt.Rows[i][j];
+                                    
+                                    jsonResult.Append($"\"{colName}\":");
+                                    if (val is DBNull) {
+                                        jsonResult.Append("null");
+                                    } else if (val is string || val is DateTime) {
+                                        jsonResult.Append($"\"{val.ToString().Replace("\"", "\\\"")}\"");
+                                    } else if (val is bool b) {
+                                        jsonResult.Append(b ? "true" : "false");
+                                    } else {
+                                        jsonResult.Append(val.ToString());
+                                    }
+
+                                    if (j < dt.Columns.Count - 1) jsonResult.Append(",");
+                                }
+                                jsonResult.Append("}");
+                                if (i < dt.Rows.Count - 1) jsonResult.Append(",");
+                            }
+                            jsonResult.Append("]");
                         }
                     }
                 }
+            } catch (Exception ex) {
+                return $"{{\"error\": \"{ex.Message.Replace("\"", "\\\"")}\"}}";
             }
 
             stopwatch.Stop();
-            return (totalCost, avgDepreciation, stopwatch.Elapsed.TotalMilliseconds);
+            // Return raw JSON data and prepend the execution time header
+            return $"{stopwatch.Elapsed.TotalMilliseconds:F3}|{jsonResult.ToString()}";
         }
     }
 }
